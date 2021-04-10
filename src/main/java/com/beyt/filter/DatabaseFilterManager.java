@@ -8,11 +8,12 @@ import com.beyt.filter.rule.sort.SortFilterAscRule;
 import com.beyt.filter.rule.sort.SortFilterDescRule;
 import com.beyt.filter.rule.specification.*;
 import com.beyt.filter.rule.top.*;
-import com.beyt.repository.JpaExtendedRepository;
 import com.beyt.util.ApplicationContextUtil;
 import com.beyt.util.SpecificationUtil;
-import com.beyt.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.metamodel.model.domain.internal.SingularAttributeImpl;
+import org.hibernate.query.criteria.internal.path.RootImpl;
+import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -142,10 +142,37 @@ public class DatabaseFilterManager {
 
     @SuppressWarnings("unchecked")
     public static <Entity> List<Tuple> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
-        Class<Entity> entityClass = (Class<Entity>)GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
+        return getEntityListWithReturnClass(repositoryExecutor, searchQuery, Tuple.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
+        Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
+        if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(searchQuery.getSelect())) {
+            return getEntityListWithReturnClass(repositoryExecutor, searchQuery, resultTypeClass);
+        } else {
+            List<Tuple> entityListBySelectableFilter = getEntityListWithReturnClass(repositoryExecutor, searchQuery, Tuple.class);
+
+            if (!CollectionUtils.isEmpty(searchQuery.getSelect())) {
+                return convertResultToResultTypeList(searchQuery.getSelect(), resultTypeClass, entityListBySelectableFilter);
+            } else {
+
+                if (!CollectionUtils.isEmpty(entityListBySelectableFilter)) {
+                    List<String> parameters = entityListBySelectableFilter.get(0).getElements().stream().filter(e -> SingularAttributePath.class.isAssignableFrom(e.getClass()))
+                            .map(e -> ((SingularAttributePath) e).getAttribute().getName()).collect(Collectors.toList());
+                    return convertResultToResultTypeList(parameters, resultTypeClass, entityListBySelectableFilter);
+                } else {
+                    return new ArrayList<>();
+                }
+            }
+        }
+    }
+
+    private static <Entity, ResultType> List<ResultType> getEntityListWithReturnClass(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
+        Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
         EntityManager entityManager = ApplicationContextUtil.getEntityManager();
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> query = builder.createTupleQuery();
+        CriteriaQuery<ResultType> query = builder.createQuery(resultTypeClass);
         Root<Entity> root = query.from(entityClass);
 
         query.distinct(searchQuery.isDistinct());
@@ -153,6 +180,13 @@ public class DatabaseFilterManager {
         if (!CollectionUtils.isEmpty(searchQuery.getSelect())) {
             List<Selection<?>> selectionList = new ArrayList<>();
             searchQuery.getSelect().forEach(selectField -> selectionList.add(root.get(selectField)));
+            query.multiselect(selectionList);
+        } else if (!resultTypeClass.equals(entityClass)) {
+            List<Selection<?>> selectionList = new ArrayList<>();
+            Set<SingularAttributeImpl> declaredAttributes = ((RootImpl) root).getModel().getDeclaredAttributes();
+            for (SingularAttributeImpl declaredAttribute : declaredAttributes) {
+                selectionList.add(root.get(declaredAttribute.getName()));
+            }
             query.multiselect(selectionList);
         }
 
@@ -166,7 +200,7 @@ public class DatabaseFilterManager {
             query.orderBy(orderList);
         }
 
-        TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
+        TypedQuery<ResultType> typedQuery = entityManager.createQuery(query);
 
 
         if (Objects.nonNull(searchQuery.getPageSize())) {
@@ -180,42 +214,32 @@ public class DatabaseFilterManager {
         return typedQuery.getResultList();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
-        List<Tuple> entityListBySelectableFilter = getEntityListBySelectableFilter(repositoryExecutor, searchQuery);
+    private static <ResultType> List<ResultType> convertResultToResultTypeList(List<String> querySelects, Class<ResultType> resultTypeClass, List<Tuple> entityListBySelectableFilter) {
+        Map<Integer, Method> setterMethods = new HashMap<>();
+        for (int i = 0; i < querySelects.size(); i++) {
+            String select = querySelects.get(i);
 
-        if (!CollectionUtils.isEmpty(searchQuery.getWhere())) {
-            Map<Integer, Method> setterMethods = new HashMap<>();
-            for (int i = 0; i < searchQuery.getSelect().size(); i++) {
-                String select = searchQuery.getSelect().get(i);
+            Optional<Method> methodOptional = Arrays.stream(resultTypeClass.getMethods())
+                    .filter(c -> c.getName().equalsIgnoreCase("set" + select)
+                            && c.getParameterCount() == 1).findFirst();
 
-                Optional<Method> methodOptional = Arrays.stream(resultTypeClass.getMethods())
-                        .filter(c -> c.getName().equals("set" + StringUtil.uppercaseFirstLetter(select))
-                                && c.getParameterCount() == 1).findFirst();
-
-                if (methodOptional.isPresent()) {
-                    setterMethods.put(i, methodOptional.get());
-                }
+            if (methodOptional.isPresent()) {
+                setterMethods.put(i, methodOptional.get());
             }
-
-            return entityListBySelectableFilter.stream().map(t -> {
-                try {
-                    ResultType resultObj = resultTypeClass.newInstance();
-
-                    for (Map.Entry<Integer, Method> entry : setterMethods.entrySet()) {
-                        entry.getValue().invoke(resultObj, t.get(entry.getKey()));
-                    }
-                    return resultObj;
-                } catch (Exception e) {
-                    return null;
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
-
-        }else {
-            // TODO
-            return null;
         }
 
+        return entityListBySelectableFilter.stream().map(t -> {
+            try {
+                ResultType resultObj = resultTypeClass.newInstance();
+
+                for (Map.Entry<Integer, Method> entry : setterMethods.entrySet()) {
+                    entry.getValue().invoke(resultObj, t.get(entry.getKey()));
+                }
+                return resultObj;
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private static <M extends Map<CriteriaType, ?>> List<Criteria> getMapSpecificRules(M map, List<Criteria> searchCriteriaList) {

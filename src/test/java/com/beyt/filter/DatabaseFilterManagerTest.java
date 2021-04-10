@@ -22,7 +22,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = TestApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -263,7 +264,14 @@ class DatabaseFilterManagerTest {
         orderBy.put("age", Order.ASC);
         searchQuery.setOrderBy(orderBy);
 
-        List<Customer> allWithSearchQuery = customerRepository.findAllWithSearchQuery(searchQuery, Customer.class);
-        System.out.println(allWithSearchQuery);
+        SearchQuery searchQuery1 = new SearchQuery();
+        searchQuery1.getSelect().add("id");
+        searchQuery1.getSelect().add("name");
+        SearchQuery searchQuery2 = new SearchQuery();
+
+        List<Customer> allWithSearchQuery1 = customerRepository.findAllWithSearchQuery(searchQuery1, Customer.class);
+        List<User> allWithSearchQuery2 = customerRepository.findAllWithSearchQuery(searchQuery1, User.class);
+        List<User> allWithSearchQuery3 = customerRepository.findAllWithSearchQuery(searchQuery2, User.class);
+        List<Customer> allWithSearchQuery4 = customerRepository.findAllWithSearchQuery(searchQuery2, Customer.class);
     }
 }
