@@ -9,7 +9,7 @@ TODOs:
 - Spring Boot Service For Data Fetch (done)
 - Linq For Java 
 - A Repository For Linq Support
-- Web Authentication Support. 
+- Web Authorization Support.
 - Branckets Support (Parantez desteği)
 
 
