@@ -5,7 +5,6 @@ package com.beyt.dto.enums;
  * Created by tdilber at 15-Sep-19
  */
 public enum CriteriaType {
-    NONE(0, ""),
     CONTAIN(1, "İçeriyor (String)"),
     DOES_NOT_CONTAIN(2, "İçermiyor (String)"),
     END_WITH(3, "İle bitiyor (String)"),
@@ -18,12 +17,7 @@ public enum CriteriaType {
     LESS_THAN(10, "Küçüktür"),
     LESS_THAN_OR_EQUAL(11, "Küçüktür veya eşittir"),
     OR(12, "Veya (Konulduğu yeri 2 ye Böler) (key ve values önemsizdir)"),
-    TOP_ASC(13, "Artan sıralamaya göre ilk (x)"),
-    TOP_DESC(14, "Azalan sıralamaya göre ilk (x)"),
-    PAGE_ASC(15, "Artan sıralamaya göre (y). inci (x) kadar eleman getir"),
-    PAGE_DESC(16, "Azalan sıralamaya göre  (y). inci (x) kadar eleman getir"),
-    SORT_ASC(17, "Artan Sıralama"),
-    SORT_DESC(18, "Azalan Sıralama");
+    PARENTHES(13, "Sub Criteria");
 
     private int value = -1;
     private String meaning;

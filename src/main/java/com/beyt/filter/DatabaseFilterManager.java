@@ -3,13 +3,8 @@ package com.beyt.filter;
 import com.beyt.dto.Criteria;
 import com.beyt.dto.SearchQuery;
 import com.beyt.dto.enums.CriteriaType;
-import com.beyt.filter.rule.sort.ISortFilterRule;
-import com.beyt.filter.rule.sort.SortFilterAscRule;
-import com.beyt.filter.rule.sort.SortFilterDescRule;
 import com.beyt.filter.rule.specification.*;
-import com.beyt.filter.rule.top.*;
 import com.beyt.util.ApplicationContextUtil;
-import com.beyt.util.SpecificationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.metamodel.model.domain.internal.SingularAttributeImpl;
 import org.hibernate.query.criteria.internal.path.RootImpl;
@@ -36,9 +31,6 @@ import java.util.stream.Collectors;
 public class DatabaseFilterManager {
 
     public final static Map<CriteriaType, ISpecificationFilterRule> specificationRuleMap = new HashMap<>();
-    public final static Map<CriteriaType, IPageFilterRule> topRuleMap = new HashMap<>();
-    public final static Map<CriteriaType, ISortFilterRule> sortRuleMap = new HashMap<>();
-    public final static List<CriteriaType> allRuleOperationList = new ArrayList<>();
 
     static {
         specificationRuleMap.put(CriteriaType.CONTAIN, new SpecificationFilterDoubleLikeRule());
@@ -53,26 +45,12 @@ public class DatabaseFilterManager {
         specificationRuleMap.put(CriteriaType.LESS_THAN, new SpecificationFilterLessThanRule());
         specificationRuleMap.put(CriteriaType.LESS_THAN_OR_EQUAL, new SpecificationFilterLessThanOrEqualToRule());
         specificationRuleMap.put(CriteriaType.OR, null);
-
-        topRuleMap.put(CriteriaType.TOP_ASC, new TopFilterAscRule());
-        topRuleMap.put(CriteriaType.TOP_DESC, new TopFilterDescRule());
-        topRuleMap.put(CriteriaType.PAGE_ASC, new PageFilterAscRule());
-        topRuleMap.put(CriteriaType.PAGE_DESC, new PageFilterDescRule());
-
-        sortRuleMap.put(CriteriaType.SORT_ASC, new SortFilterAscRule());
-        sortRuleMap.put(CriteriaType.SORT_DESC, new SortFilterDescRule());
-
-        allRuleOperationList.addAll(specificationRuleMap.keySet());
-        allRuleOperationList.addAll(topRuleMap.keySet());
-        allRuleOperationList.addAll(sortRuleMap.keySet());
+        specificationRuleMap.put(CriteriaType.PARENTHES, null);
     }
 
     public static <Entity> List<Entity> findAll(JpaSpecificationExecutor<Entity> repositoryExecutor,
                                                 List<Criteria> searchCriteriaList) {
         List<Entity> result;
-
-        List<Criteria> topRules = getMapSpecificRules(topRuleMap, searchCriteriaList);
-        List<Criteria> sortRules = getMapSpecificRules(sortRuleMap, searchCriteriaList);
         List<Criteria> specificationRules = getMapSpecificRules(specificationRuleMap, searchCriteriaList);
         GenericSpecification<Entity> specification = null;
 
@@ -80,28 +58,7 @@ public class DatabaseFilterManager {
             specification = new GenericSpecification<>(specificationRules);
         }
 
-        if (!topRules.isEmpty()) {
-            Criteria criteria = topRules.get(0);
-            IPageFilterRule topFilterRule = topRuleMap.get(criteria.operation);
-            Pageable pageable;
-            if (criteria.operation == CriteriaType.TOP_ASC || criteria.operation == CriteriaType.TOP_DESC) {
-                SpecificationUtil.checkHasFirstValue(criteria);
-                pageable = topFilterRule.generatePageRequest(0, Integer.parseInt(criteria.values.get(0).toString()), criteria.key);
-            } else {
-                SpecificationUtil.checkHasTwoValue(criteria);
-                pageable = topFilterRule.generatePageRequest(Integer.parseInt(criteria.values.get(1).toString()), Integer.parseInt(criteria.values.get(0).toString()), criteria.key);
-            }
-            Page<Entity> entityPage = repositoryExecutor.findAll(specification, pageable);
-            result = entityPage.getContent();
-        } else if (!sortRules.isEmpty()) {
-            Criteria criteria = sortRules.get(0);
-            ISortFilterRule sortFilterRule = sortRuleMap.get(criteria.operation);
-            result = repositoryExecutor.findAll(specification, sortFilterRule.getSortFilterRule(criteria.key));
-        } else {
-            result = repositoryExecutor.findAll(specification);
-        }
-
-        return result;
+        return repositoryExecutor.findAll(specification);
     }
 
     public static <Entity> Page<Entity> findAll(JpaSpecificationExecutor<Entity> repositoryExecutor,
@@ -141,12 +98,18 @@ public class DatabaseFilterManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <Entity> List<Tuple> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
+    public static <Entity> List<Entity> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
+        Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
+        return getEntityListBySelectableFilterWithTuple(repositoryExecutor, searchQuery, entityClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <Entity> List<Tuple> getEntityListBySelectableFilterWithTuple(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
         return getEntityListWithReturnClass(repositoryExecutor, searchQuery, Tuple.class);
     }
 
     @SuppressWarnings("unchecked")
-    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
+    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilterWithTuple(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
         Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
         if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(searchQuery.getSelect())) {
             return getEntityListWithReturnClass(repositoryExecutor, searchQuery, resultTypeClass);

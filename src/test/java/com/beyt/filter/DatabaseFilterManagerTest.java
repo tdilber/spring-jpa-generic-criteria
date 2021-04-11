@@ -16,12 +16,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.util.Pair;
 
 import javax.persistence.EntityManager;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.beyt.filter.query.simplifier.QuerySimplifier.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -273,5 +275,16 @@ class DatabaseFilterManagerTest {
         List<User> allWithSearchQuery2 = customerRepository.findAllWithSearchQuery(searchQuery1, User.class);
         List<User> allWithSearchQuery3 = customerRepository.findAllWithSearchQuery(searchQuery2, User.class);
         List<Customer> allWithSearchQuery4 = customerRepository.findAllWithSearchQuery(searchQuery2, Customer.class);
+    }
+
+    @Test
+    void searchQuery2() {
+        List<Customer> result = customerRepository.query().select("id", "name").where(f("id").eq(3), OR, f("name").startWith("Customer")).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
+        System.out.println(result);
+
+        customerRepository.query().select("id", "name").where(p(f("id").eq(3), OR, f("name").startWith("Customer"))).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
+        List<Customer> result1 = customerRepository.query().select("id", "name").where(p(f("id").eq(3), OR, f("id").eq(4), OR, f("id").eq(5)), p(f("id").eq(6), OR, f("id").eq(4), OR, f("id").eq(5))).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
+
+        System.out.println(result1);
     }
 }

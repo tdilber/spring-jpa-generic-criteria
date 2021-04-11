@@ -3,9 +3,8 @@ package com.beyt.repository;
 import com.beyt.dto.Criteria;
 import com.beyt.dto.IFetchPartiallyProcessor;
 import com.beyt.dto.SearchQuery;
-import com.beyt.dto.enums.CriteriaType;
 import com.beyt.filter.DatabaseFilterManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.beyt.filter.query.builder.QueryBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,25 +13,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import java.util.List;
 
 @NoRepositoryBean
 public interface JpaExtendedRepository<T, ID> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
-    @Autowired
-    EntityManager entityManagerrr = null;
-
     default List<T> findAllWithCriteria(List<Criteria> criteriaList) {
         return DatabaseFilterManager.findAll(this, criteriaList);
     }
 
-    default <Entity> List<Tuple> findAllWithSearchQuery(SearchQuery searchQuery) {
-        return DatabaseFilterManager.getEntityListBySelectableFilter(this, searchQuery);
+    default List<Tuple> findAllWithSearchQuery(SearchQuery searchQuery) {
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(this, searchQuery);
     }
-    default <Entity, ResultType> List<ResultType> findAllWithSearchQuery(SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
-        return DatabaseFilterManager.getEntityListBySelectableFilter(this, searchQuery, resultTypeClass);
+
+    default <ResultType> List<ResultType> findAllWithSearchQuery(SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(this, searchQuery, resultTypeClass);
+    }
+
+    default QueryBuilder<T, ID> query() {
+        return new QueryBuilder<T, ID>(this);
     }
 
     default Page<T> findAllWithCriteria(List<Criteria> criteriaList, Pageable pageable) {
@@ -64,11 +64,8 @@ public interface JpaExtendedRepository<T, ID> extends JpaRepository<T, ID>, JpaS
     default void fetchPartiallyWithCriteria(List<Criteria> criteriaList, IFetchPartiallyProcessor<T> processor, int pageSize) {
         long totalElements = DatabaseFilterManager.count(this, criteriaList);
 
-        Criteria criteria = new Criteria("id", CriteriaType.PAGE_ASC, pageSize, 0);
-        criteriaList.add(criteria);
         for (int i = 0; (long) i * pageSize < totalElements; i++) {
-            criteria.values.set(1, i);
-            processor.process(DatabaseFilterManager.findAll(this, criteriaList));
+            processor.process(DatabaseFilterManager.findAll(this, criteriaList, PageRequest.of(i, pageSize)).getContent());
         }
     }
 }
