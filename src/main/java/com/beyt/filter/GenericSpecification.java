@@ -2,6 +2,7 @@ package com.beyt.filter;
 
 import com.beyt.dto.Criteria;
 import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.JoinType;
 import com.beyt.exception.GenericFilterNoAvailableEnumException;
 import com.beyt.exception.GenericFilterNoAvailableOperationException;
 import com.beyt.exception.GenericFilterNoAvailableOrOperationUsageException;
@@ -9,10 +10,13 @@ import com.beyt.exception.GenericFilterNoAvailableParanthesOperationUsageExcepti
 import com.beyt.util.ReflectionUtil;
 import com.beyt.util.SpecificationUtil;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by tdilber at 24-Aug-19
@@ -64,15 +68,47 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
 
     public static From<?, ?> createLocalFrom(Root<?> root, String key) {
         From<?, ?> localFrom = root;
-        String[] splitedKey = key.split("\\.");
-        for (int j = 0; j < splitedKey.length - 1; j++) {
-            localFrom = getJoin(localFrom, splitedKey[j]);
+        List<Pair<String, JoinType>> fieldJoins = getFieldJoins(key);
+
+        for (Pair<String, JoinType> fieldJoin : fieldJoins) {
+            localFrom = getJoin(localFrom, fieldJoin.getFirst(), fieldJoin.getSecond());
         }
+
         return localFrom;
     }
 
+    public static List<Pair<String, JoinType>> getFieldJoins(String key) {
+        List<Pair<String, JoinType>> fieldJoins = new ArrayList<>();
+
+        String subKey = key;
+        JoinType joinType = null;
+        int index = -1;
+
+
+        while (subKey.chars().anyMatch(c -> Arrays.stream(JoinType.values()).anyMatch(j -> j.getSeparator().charValue() == c))) {
+
+            for (JoinType value : JoinType.values()) {
+                int indexOf = subKey.indexOf(value.getSeparator());
+                if (indexOf > -1 && (index == -1 || indexOf < index)) {
+                    index = indexOf;
+                    joinType = value;
+                }
+            }
+
+            if (Objects.nonNull(joinType)) {
+                fieldJoins.add(Pair.of(subKey.substring(0, index), joinType));
+                subKey = subKey.substring(index + 1);
+            }
+
+            index = -1;
+            joinType = null;
+        }
+
+        return fieldJoins;
+    }
+
     public static String getFieldName(String key) {
-        String[] splitedKey = key.split("\\.");
+        String[] splitedKey = key.split(">|<|\\.");
         return splitedKey[splitedKey.length - 1];
     }
 
@@ -96,7 +132,7 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
         }
     }
 
-    private static Join<?, ?> getJoin(From<?, ?> from, String key) {
-        return from.join(key);
+    private static Join<?, ?> getJoin(From<?, ?> from, String key, JoinType joinType) {
+        return from.join(key, joinType.getJoinType());
     }
 }
