@@ -9,7 +9,7 @@ TODOs:
 - Linq For Java (done)
 - A Repository For Linq Support (done)
 - Parantesis Support (done)
-- not just inner join support, all joins support
+- not just inner join support, all joins support (done)
 
 customerRepository.query() <br />
 .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate" , "
