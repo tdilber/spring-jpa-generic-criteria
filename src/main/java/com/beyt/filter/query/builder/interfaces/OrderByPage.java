@@ -1,14 +1,15 @@
 package com.beyt.filter.query.builder.interfaces;
 
-import com.beyt.dto.enums.Order;
-import org.springframework.data.util.Pair;
+import com.beyt.filter.query.simplifier.QuerySimplifier;
 
 import java.util.List;
 
 public interface OrderByPage<T, ID> {
-    PageResult<T, ID> orderBy(Pair<String, Order>... pairs);
+    PageableResult<T, ID> orderBy(QuerySimplifier.OrderByRule... pairs);
 
     Result<T, ID> page(int pageNumber, int pageSize);
 
     List<T> getResult();
+
+    <ResultValue> List<ResultValue> getResult(Class<ResultValue> resultValueClass);
 }

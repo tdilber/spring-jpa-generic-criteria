@@ -11,6 +11,16 @@ TODOs:
 - Parantesis Support (done)
 - not just inner join support, all joins support
 
+customerRepository.query() <br />
+.select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate" , "
+birthdate"))<br />
+.distinct(false)<br />
+.where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), Parantesis(Field("id").eq(6),
+OR, Field("id").eq(4), OR, Field("user.id").eq(5)))<br />
+.orderBy(OrderBy("user.name", Order.ASC))<br />
+.page(0, 5)<br />
+.getResult(User.class);<br />
+
 Next Version Things
 
 - Web Authorization Support.

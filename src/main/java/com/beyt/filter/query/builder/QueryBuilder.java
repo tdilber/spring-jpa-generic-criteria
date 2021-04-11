@@ -2,27 +2,28 @@ package com.beyt.filter.query.builder;
 
 import com.beyt.dto.Criteria;
 import com.beyt.dto.SearchQuery;
-import com.beyt.dto.enums.Order;
 import com.beyt.filter.DatabaseFilterManager;
 import com.beyt.filter.query.builder.interfaces.*;
+import com.beyt.filter.query.simplifier.QuerySimplifier;
 import com.beyt.repository.JpaExtendedRepository;
 import org.springframework.data.util.Pair;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, WhereOrderByPage<T, ID>, OrderByPage<T, ID>, PageResult<T, ID>, Result<T, ID> {
-    private JpaExtendedRepository<T, ID> jpaExtendedRepository;
-    private SearchQuery searchQuery;
+@SuppressWarnings("unchecked")
+public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, WhereOrderByPage<T, ID>, OrderByPage<T, ID>, PageableResult<T, ID>, Result<T, ID> {
+    protected final JpaExtendedRepository<T, ID> jpaExtendedRepository;
+    protected final SearchQuery searchQuery;
 
     public QueryBuilder(JpaExtendedRepository<T, ID> jpaExtendedRepository) {
         this.jpaExtendedRepository = jpaExtendedRepository;
         searchQuery = new SearchQuery();
     }
 
-    public DistinctWhereOrderByPage<T, ID> select(String... selects) {
-        searchQuery.getSelect().addAll(Arrays.asList(selects));
+    public DistinctWhereOrderByPage<T, ID> select(QuerySimplifier.SelectRule... selectRules) {
+        searchQuery.getSelect().addAll(Arrays.stream(selectRules).map(o -> Pair.of(o.getFieldName(), o.getAlias())).collect(Collectors.toList()));
         return this;
     }
 
@@ -38,10 +39,8 @@ public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, Whe
     }
 
 
-    public PageResult<T, ID> orderBy(Pair<String, Order>... pairs) {
-        HashMap<String, Order> orderBy = new HashMap<>();
-        Arrays.stream(pairs).forEach(p -> orderBy.put(p.getFirst(), p.getSecond()));
-        searchQuery.getOrderBy().putAll(orderBy);
+    public PageableResult<T, ID> orderBy(QuerySimplifier.OrderByRule... pairs) {
+        searchQuery.getOrderBy().addAll(Arrays.stream(pairs).map(o -> Pair.of(o.getFieldName(), o.getOrderType())).collect(Collectors.toList()));
         return this;
     }
 
@@ -53,5 +52,9 @@ public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, Whe
 
     public List<T> getResult() {
         return DatabaseFilterManager.getEntityListBySelectableFilter(jpaExtendedRepository, searchQuery);
+    }
+
+    public <ResultValue> List<ResultValue> getResult(Class<ResultValue> resultValueClass) {
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(jpaExtendedRepository, searchQuery, resultValueClass);
     }
 }

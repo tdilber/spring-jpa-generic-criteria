@@ -57,30 +57,23 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
         return builder.or(predicateOrList.toArray(new Predicate[0]));
     }
 
-    private Predicate andAllPredicates(Root<Entity> root, CriteriaBuilder builder, List<Criteria> criteriaList) {
-        Predicate[] predicates = new Predicate[criteriaList.size()];
-
-        for (int i = 0; i < criteriaList.size(); i++) {
-            Predicate predicate = getPredicate(root, builder, criteriaList.get(i));
-            predicates[i] = predicate;
-        }
-
-        Predicate predicate = null;
-        if (!criteriaList.isEmpty()) {
-            predicate = builder.and(predicates);
-        }
-
-        return predicate;
+    private Predicate getPredicate(Root<Entity> root, CriteriaBuilder builder, Criteria criteria) {
+        From<?, ?> localFrom = createLocalFrom(root, criteria.key);
+        return addPredicate(localFrom, builder, new Criteria(getFieldName(criteria.key), criteria.operation, criteria.values.toArray(new Object[0])));
     }
 
-    private Predicate getPredicate(Root<Entity> root, CriteriaBuilder builder, Criteria criteria) {
+    public static From<?, ?> createLocalFrom(Root<?> root, String key) {
         From<?, ?> localFrom = root;
-        String[] splitedKey = criteria.key.split("\\.");
+        String[] splitedKey = key.split("\\.");
         for (int j = 0; j < splitedKey.length - 1; j++) {
             localFrom = getJoin(localFrom, splitedKey[j]);
         }
-        Predicate predicate = addPredicate(localFrom, builder, new Criteria(splitedKey[splitedKey.length - 1], criteria.operation, criteria.values.toArray(new Object[0])));
-        return predicate;
+        return localFrom;
+    }
+
+    public static String getFieldName(String key) {
+        String[] splitedKey = key.split("\\.");
+        return splitedKey[splitedKey.length - 1];
     }
 
     private Predicate addPredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
@@ -103,7 +96,7 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
         }
     }
 
-    private Join<?, ?> getJoin(From<?, ?> from, String key) {
+    private static Join<?, ?> getJoin(From<?, ?> from, String key) {
         return from.join(key);
     }
 }

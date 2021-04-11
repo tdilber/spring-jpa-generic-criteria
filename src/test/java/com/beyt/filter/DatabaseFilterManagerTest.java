@@ -21,7 +21,10 @@ import org.springframework.data.util.Pair;
 import javax.persistence.EntityManager;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import static com.beyt.filter.query.simplifier.QuerySimplifier.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,28 +64,28 @@ class DatabaseFilterManagerTest {
     public static final Calendar INSTANCE = Calendar.getInstance();
 
     DatabaseFilterManagerTest() {
-        user1 = new User(null, "Name 1", 35, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user1 = new User(null, "Name 1", "Surname 1", 35, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer1 = new Customer(null, "Customer 1", 20, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user1);
         INSTANCE.add(Calendar.MONTH, -1);
-        user2 = new User(null, "Name 2", 36, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user2 = new User(null, "Name 2", "Surname 1", 36, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer2 = new Customer(null, "Customer 2", 21, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user2);
         INSTANCE.add(Calendar.MONTH, -1);
-        user3 = new User(null, "Name 3", 37, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user3 = new User(null, "Name 3", "Surname 1", 37, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer3 = new Customer(null, "Customer 3", 22, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user3);
         INSTANCE.add(Calendar.MONTH, -1);
-        user4 = new User(null, "Name 4", 38, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user4 = new User(null, "Name 4", "Surname 1", 38, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer4 = new Customer(null, "Customer 4", 23, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user4);
         INSTANCE.add(Calendar.MONTH, -1);
-        user5 = new User(null, "Name 5", 39, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user5 = new User(null, "Name 5", "Surname 1", 39, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer5 = new Customer(null, "Customer 5", 24, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user5);
         INSTANCE.add(Calendar.MONTH, -1);
-        user6 = new User(null, "Name 6", 40, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user6 = new User(null, "Name 6", "Surname 1", 40, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer6 = new Customer(null, "Customer 6", 25, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user6);
         INSTANCE.add(Calendar.MONTH, -1);
-        user7 = new User(null, "Name 7", 41, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user7 = new User(null, "Name 7", "Surname 1", 41, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer7 = new Customer(null, "Customer 7", 26, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user7);
         INSTANCE.add(Calendar.MONTH, -1);
-        user8 = new User(null, "Name 8", 42, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
+        user8 = new User(null, "Name 8", "Surname 1", 42, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
         customer8 = new Customer(null, null, 27, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user8);
 
     }
@@ -257,18 +260,15 @@ class DatabaseFilterManagerTest {
     @Test
     void searchQuery() {
         SearchQuery searchQuery = new SearchQuery();
-        searchQuery.setSelect(toList("age", "name"));
         searchQuery.getWhere().add(Criteria.of("age", CriteriaType.GREATER_THAN, 20));
         searchQuery.setPageSize(10);
         searchQuery.setPageNumber(0);
         searchQuery.setDistinct(true);
-        HashMap<String, Order> orderBy = new HashMap<>();
-        orderBy.put("age", Order.ASC);
-        searchQuery.setOrderBy(orderBy);
+        searchQuery.getOrderBy().add(Pair.of("age", Order.ASC));
 
         SearchQuery searchQuery1 = new SearchQuery();
-        searchQuery1.getSelect().add("id");
-        searchQuery1.getSelect().add("name");
+        searchQuery1.getSelect().add(Pair.of("id", "id"));
+        searchQuery1.getSelect().add(Pair.of("name", "name"));
         SearchQuery searchQuery2 = new SearchQuery();
 
         List<Customer> allWithSearchQuery1 = customerRepository.findAllWithSearchQuery(searchQuery1, Customer.class);
@@ -278,13 +278,14 @@ class DatabaseFilterManagerTest {
     }
 
     @Test
-    void searchQuery2() {
-        List<Customer> result = customerRepository.query().select("id", "name").where(f("id").eq(3), OR, f("name").startWith("Customer")).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
-        System.out.println(result);
+    void simplifiedSearchQuery() {
+        List<User> result2 = customerRepository.query()
+                .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
+                .distinct(false)
+                .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
+                .orderBy(OrderBy("user.name", Order.ASC))
+                .page(0, 5)
+                .getResult(User.class);
 
-        customerRepository.query().select("id", "name").where(p(f("id").eq(3), OR, f("name").startWith("Customer"))).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
-        List<Customer> result1 = customerRepository.query().select("id", "name").where(p(f("id").eq(3), OR, f("id").eq(4), OR, f("id").eq(5)), p(f("id").eq(6), OR, f("id").eq(4), OR, f("id").eq(5))).orderBy(Pair.of("name", Order.DESC)).page(0, 5).getResult();
-
-        System.out.println(result1);
     }
 }

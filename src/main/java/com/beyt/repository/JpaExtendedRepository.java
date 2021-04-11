@@ -23,12 +23,16 @@ public interface JpaExtendedRepository<T, ID> extends JpaRepository<T, ID>, JpaS
         return DatabaseFilterManager.findAll(this, criteriaList);
     }
 
-    default List<Tuple> findAllWithSearchQuery(SearchQuery searchQuery) {
+    default List<T> findAllWithSearchQuery(SearchQuery searchQuery) {
+        return DatabaseFilterManager.getEntityListBySelectableFilter(this, searchQuery);
+    }
+
+    default List<Tuple> findAllWithSearchQueryWithTuple(SearchQuery searchQuery) {
         return DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(this, searchQuery);
     }
 
     default <ResultType> List<ResultType> findAllWithSearchQuery(SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
-        return DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(this, searchQuery, resultTypeClass);
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(this, searchQuery, resultTypeClass);
     }
 
     default QueryBuilder<T, ID> query() {

@@ -1,6 +1,5 @@
 package com.beyt.testenv.entity;
 
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +23,9 @@ public class User implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "surname")
+    private String surname;
 
     @Column(name = "age")
     private Integer age;

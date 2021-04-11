@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.util.Pair;
 import org.springframework.util.CollectionUtils;
 
 import javax.persistence.EntityManager;
@@ -100,7 +101,7 @@ public class DatabaseFilterManager {
     @SuppressWarnings("unchecked")
     public static <Entity> List<Entity> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
         Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
-        return getEntityListBySelectableFilterWithTuple(repositoryExecutor, searchQuery, entityClass);
+        return getEntityListBySelectableFilterWithReturnType(repositoryExecutor, searchQuery, entityClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -109,7 +110,7 @@ public class DatabaseFilterManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilterWithTuple(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
+    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilterWithReturnType(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
         Class<Entity> entityClass = (Class<Entity>) GenericTypeResolver.resolveTypeArgument(repositoryExecutor.getClass(), JpaSpecificationExecutor.class);
         if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(searchQuery.getSelect())) {
             return getEntityListWithReturnClass(repositoryExecutor, searchQuery, resultTypeClass);
@@ -121,8 +122,8 @@ public class DatabaseFilterManager {
             } else {
 
                 if (!CollectionUtils.isEmpty(entityListBySelectableFilter)) {
-                    List<String> parameters = entityListBySelectableFilter.get(0).getElements().stream().filter(e -> SingularAttributePath.class.isAssignableFrom(e.getClass()))
-                            .map(e -> ((SingularAttributePath) e).getAttribute().getName()).collect(Collectors.toList());
+                    List<Pair<String, String>> parameters = entityListBySelectableFilter.get(0).getElements().stream().filter(e -> SingularAttributePath.class.isAssignableFrom(e.getClass()))
+                            .map(e -> Pair.of(((SingularAttributePath) e).getAttribute().getName(), Objects.isNull(e.getAlias()) ? ((SingularAttributePath) e).getAttribute().getName() : e.getAlias())).collect(Collectors.toList());
                     return convertResultToResultTypeList(parameters, resultTypeClass, entityListBySelectableFilter);
                 } else {
                     return new ArrayList<>();
@@ -142,7 +143,10 @@ public class DatabaseFilterManager {
 
         if (!CollectionUtils.isEmpty(searchQuery.getSelect())) {
             List<Selection<?>> selectionList = new ArrayList<>();
-            searchQuery.getSelect().forEach(selectField -> selectionList.add(root.get(selectField)));
+
+            searchQuery.getSelect().forEach(selectField -> {
+                selectionList.add(GenericSpecification.createLocalFrom(root, selectField.getFirst()).get(GenericSpecification.getFieldName(selectField.getFirst())).alias(selectField.getSecond()));
+            });
             query.multiselect(selectionList);
         } else if (!resultTypeClass.equals(entityClass)) {
             List<Selection<?>> selectionList = new ArrayList<>();
@@ -159,7 +163,9 @@ public class DatabaseFilterManager {
 
         if (!CollectionUtils.isEmpty(searchQuery.getOrderBy())) {
             List<Order> orderList = new ArrayList<>();
-            searchQuery.getOrderBy().forEach((field, order) -> orderList.add(order == com.beyt.dto.enums.Order.DESC ? builder.desc(root.get(field)) : builder.asc(root.get(field))));
+            searchQuery.getOrderBy().forEach((orderPair) -> {
+                orderList.add(orderPair.getSecond() == com.beyt.dto.enums.Order.DESC ? builder.desc(GenericSpecification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))) : builder.asc(GenericSpecification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))));
+            });
             query.orderBy(orderList);
         }
 
@@ -177,10 +183,10 @@ public class DatabaseFilterManager {
         return typedQuery.getResultList();
     }
 
-    private static <ResultType> List<ResultType> convertResultToResultTypeList(List<String> querySelects, Class<ResultType> resultTypeClass, List<Tuple> entityListBySelectableFilter) {
+    private static <ResultType> List<ResultType> convertResultToResultTypeList(List<Pair<String, String>> querySelects, Class<ResultType> resultTypeClass, List<Tuple> entityListBySelectableFilter) {
         Map<Integer, Method> setterMethods = new HashMap<>();
         for (int i = 0; i < querySelects.size(); i++) {
-            String select = querySelects.get(i);
+            String select = querySelects.get(i).getSecond();
 
             Optional<Method> methodOptional = Arrays.stream(resultTypeClass.getMethods())
                     .filter(c -> c.getName().equalsIgnoreCase("set" + select)

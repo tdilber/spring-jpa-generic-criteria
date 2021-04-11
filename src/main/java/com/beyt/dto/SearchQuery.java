@@ -2,11 +2,10 @@ package com.beyt.dto;
 
 import com.beyt.dto.enums.Order;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by tdilber at 30-Dec-20
@@ -17,9 +16,9 @@ public class SearchQuery {
     private boolean distinct = false;
     private Integer pageSize = null;
     private Integer pageNumber = null;
-    private List<String> select = new ArrayList<>();
+    private List<Pair<String, String>> select = new ArrayList<>();
     private List<Criteria> where = new CriteriaFilter();
-    private Map<String, Order> orderBy = new HashMap<>();
+    private List<Pair<String, Order>> orderBy = new ArrayList<>();
 
     public boolean isDistinct() {
         return distinct;
@@ -29,11 +28,11 @@ public class SearchQuery {
         this.distinct = distinct;
     }
 
-    public List<String> getSelect() {
+    public List<Pair<String, String>> getSelect() {
         return select;
     }
 
-    public void setSelect(List<String> select) {
+    public void setSelect(List<Pair<String, String>> select) {
         this.select = select;
     }
 
@@ -45,11 +44,11 @@ public class SearchQuery {
         this.where = where;
     }
 
-    public Map<String, Order> getOrderBy() {
+    public List<Pair<String, Order>> getOrderBy() {
         return orderBy;
     }
 
-    public void setOrderBy(Map<String, Order> orderBy) {
+    public void setOrderBy(List<Pair<String, Order>> orderBy) {
         this.orderBy = orderBy;
     }
 

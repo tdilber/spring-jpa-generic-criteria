@@ -2,18 +2,51 @@ package com.beyt.filter.query.simplifier;
 
 import com.beyt.dto.Criteria;
 import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.Order;
+import com.beyt.filter.GenericSpecification;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Arrays;
 
 public class QuerySimplifier {
     public static final Criteria OR = Criteria.of("", CriteriaType.OR);
 
-    public static Field f(String name) {
+    public static Field Field(String name) {
         return new Field(name);
     }
 
-    public static Criteria p(Criteria... criterias) {
+    public static Criteria Parantesis(Criteria... criterias) {
         return Criteria.of("", CriteriaType.PARENTHES, Arrays.asList(criterias));
+    }
+
+    public static OrderByRule OrderBy(String fieldName, Order orderType) {
+        return new OrderByRule(fieldName, orderType);
+    }
+
+    public static SelectRule Select(String fieldName, String alias) {
+        return new SelectRule(fieldName, alias);
+    }
+
+    public static SelectRule Select(String fieldName) {
+        return new SelectRule(fieldName, GenericSpecification.getFieldName(fieldName));
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderByRule {
+        private String fieldName;
+        private Order orderType;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SelectRule {
+        private String fieldName;
+        private String alias;
     }
 
     public static class Field {
