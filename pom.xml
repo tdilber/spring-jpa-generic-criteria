@@ -12,7 +12,7 @@
 
     <groupId>com.beyt</groupId>
     <artifactId>spring-jpa-generic-criteria</artifactId>
-    <version>0.1</version>
+    <version>0.1.1</version>
 
 
     <properties>
@@ -21,6 +21,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -1,5 +1,6 @@
 package com.beyt.filter;
 
+import com.beyt.BaseTestInstance;
 import com.beyt.TestApplication;
 import com.beyt.dto.Criteria;
 import com.beyt.dto.CriteriaFilter;
@@ -9,20 +10,15 @@ import com.beyt.dto.enums.Order;
 import com.beyt.exception.GenericFilterNoAvailableOrOperationUsageException;
 import com.beyt.testenv.entity.Customer;
 import com.beyt.testenv.entity.User;
-import com.beyt.testenv.repository.CustomerRepository;
-import com.beyt.testenv.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 
-import javax.persistence.EntityManager;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,63 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = TestApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class DatabaseFilterManagerTest {
+class DatabaseFilterManagerTest extends BaseTestInstance {
 
-    @Autowired
-    private CustomerRepository customerRepository;
-
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private EntityManager entityManager;
-
-    public final User user1;
-    public final User user2;
-    public final User user3;
-    public final User user4;
-    public final User user5;
-    public final User user6;
-    public final User user7;
-    public final User user8;
-
-    public final Customer customer1;
-    public final Customer customer2;
-    public final Customer customer3;
-    public final Customer customer4;
-    public final Customer customer5;
-    public final Customer customer6;
-    public final Customer customer7;
-    public final Customer customer8;
-    public static final Calendar INSTANCE = Calendar.getInstance();
-
-    DatabaseFilterManagerTest() {
-        user1 = new User(null, "Name 1", "Surname 1", 35, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer1 = new Customer(null, "Customer 1", 20, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user1);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user2 = new User(null, "Name 2", "Surname 1", 36, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer2 = new Customer(null, "Customer 2", 21, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user2);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user3 = new User(null, "Name 3", "Surname 1", 37, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer3 = new Customer(null, "Customer 3", 22, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user3);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user4 = new User(null, "Name 4", "Surname 1", 38, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer4 = new Customer(null, "Customer 4", 23, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user4);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user5 = new User(null, "Name 5", "Surname 1", 39, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer5 = new Customer(null, "Customer 5", 24, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user5);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user6 = new User(null, "Name 6", "Surname 1", 40, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer6 = new Customer(null, "Customer 6", 25, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user6);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user7 = new User(null, "Name 7", "Surname 1", 41, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer7 = new Customer(null, "Customer 7", 26, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user7);
-        INSTANCE.add(Calendar.MONTH, -1);
-        user8 = new User(null, "Name 8", "Surname 1", 42, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()));
-        customer8 = new Customer(null, null, 27, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault()), user8);
-
-    }
+    private SimpleDateFormat dateFormat;
 
     @BeforeAll
     private void init() {
@@ -129,14 +71,15 @@ class DatabaseFilterManagerTest {
                 customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("age", CriteriaType.LESS_THAN, 24))));
 
         INSTANCE.add(Calendar.MONTH, 3);
+        dateFormat = new SimpleDateFormat();
         assertEquals(toList(customer5, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.LESS_THAN_OR_EQUAL, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault())))));
+                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.LESS_THAN_OR_EQUAL, INSTANCE.toInstant()))));
         assertEquals(toList(customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.LESS_THAN, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault())))));
+                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.LESS_THAN, INSTANCE.toInstant()))));
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5),
-                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN_OR_EQUAL, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault())))));
+                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN_OR_EQUAL, INSTANCE.toInstant()))));
         assertEquals(toList(customer1, customer2, customer3, customer4),
-                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN, ZonedDateTime.ofInstant(INSTANCE.toInstant(), ZoneId.systemDefault())))));
+                customerRepository.findAllWithCriteria(CriteriaFilter.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN, INSTANCE.toInstant()))));
 
         // Support Multi Input => EQUAL, NOT_EQUAL
         assertEquals(toList(customer5),

@@ -26,4 +26,14 @@ public enum Order {
     public Sort.Direction getDirection() {
         return direction;
     }
+
+    public static Order of(String orderText) {
+        if (orderText.equalsIgnoreCase("desc")) {
+            return DESC;
+        } else if (orderText.equalsIgnoreCase("asc")) {
+            return ASC;
+        } else {
+            throw new IllegalArgumentException("Order Direction Text not valid!");
+        }
+    }
 }

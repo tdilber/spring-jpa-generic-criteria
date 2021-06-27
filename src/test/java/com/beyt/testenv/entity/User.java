@@ -1,18 +1,20 @@
 package com.beyt.testenv.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,5 +33,5 @@ public class User implements Serializable {
     private Integer age;
 
     @Column(name = "birthdate")
-    private ZonedDateTime birthdate;
+    private Instant birthdate;
 }

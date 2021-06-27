@@ -1,16 +1,12 @@
 package com.beyt.testenv.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "customer")
@@ -32,7 +28,7 @@ public class Customer implements Serializable {
     private Integer age;
 
     @Column(name = "birthdate")
-    private ZonedDateTime birthdate;
+    private Instant birthdate;
 
     @ManyToOne
     private User user;
