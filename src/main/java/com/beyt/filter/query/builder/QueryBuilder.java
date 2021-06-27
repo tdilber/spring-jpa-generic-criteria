@@ -5,7 +5,8 @@ import com.beyt.dto.SearchQuery;
 import com.beyt.filter.DatabaseFilterManager;
 import com.beyt.filter.query.builder.interfaces.*;
 import com.beyt.filter.query.simplifier.QuerySimplifier;
-import com.beyt.repository.JpaExtendedRepository;
+import com.beyt.repository.GenericSpecificationRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 
 import java.util.Arrays;
@@ -14,11 +15,11 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, WhereOrderByPage<T, ID>, OrderByPage<T, ID>, PageableResult<T, ID>, Result<T, ID> {
-    protected final JpaExtendedRepository<T, ID> jpaExtendedRepository;
+    protected final GenericSpecificationRepository<T, ID> genericSpecificationRepository;
     protected final SearchQuery searchQuery;
 
-    public QueryBuilder(JpaExtendedRepository<T, ID> jpaExtendedRepository) {
-        this.jpaExtendedRepository = jpaExtendedRepository;
+    public QueryBuilder(GenericSpecificationRepository<T, ID> genericSpecificationRepository) {
+        this.genericSpecificationRepository = genericSpecificationRepository;
         searchQuery = new SearchQuery();
     }
 
@@ -51,10 +52,18 @@ public class QueryBuilder<T, ID> implements DistinctWhereOrderByPage<T, ID>, Whe
     }
 
     public List<T> getResult() {
-        return DatabaseFilterManager.getEntityListBySelectableFilter(jpaExtendedRepository, searchQuery);
+        return DatabaseFilterManager.getEntityListBySelectableFilterAsList(genericSpecificationRepository, searchQuery);
     }
 
     public <ResultValue> List<ResultValue> getResult(Class<ResultValue> resultValueClass) {
-        return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(jpaExtendedRepository, searchQuery, resultValueClass);
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnTypeAsList(genericSpecificationRepository, searchQuery, resultValueClass);
+    }
+
+    public Page<T> getResultAsPage() {
+        return DatabaseFilterManager.getEntityListBySelectableFilterAsPage(genericSpecificationRepository, searchQuery);
+    }
+
+    public <ResultValue> Page<ResultValue> getResultAsPage(Class<ResultValue> resultValueClass) {
+        return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnTypeAsPage(genericSpecificationRepository, searchQuery, resultValueClass);
     }
 }
