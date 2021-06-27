@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.logging.log4j.util.Strings;
 import org.hamcrest.Description;
@@ -46,7 +47,11 @@ public final class TestUtil {
 
                 @Override
                 public Instant read(JsonReader in) throws IOException {
-                    // FIXME thrown exception when date is null
+                    if (in.peek() == JsonToken.NULL) {
+                        in.nextNull();
+                        return null;
+                    }
+
                     String nextString = in.nextString();
                     if (Strings.isBlank(nextString)) {
                         return null;
