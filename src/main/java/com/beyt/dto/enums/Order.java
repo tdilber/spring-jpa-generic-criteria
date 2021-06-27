@@ -1,5 +1,7 @@
 package com.beyt.dto.enums;
 
+import org.springframework.data.domain.Sort;
+
 /**
  * {@code Order} defines ascending and descending order
  *
@@ -9,10 +11,19 @@ public enum Order {
     /**
      * Ascending order
      */
-    ASC,
+    ASC(Sort.Direction.ASC),
     /**
      * Descending order
      */
-    DESC;
+    DESC(Sort.Direction.DESC);
 
+    Order(Sort.Direction direction) {
+        this.direction = direction;
+    }
+
+    private final Sort.Direction direction;
+
+    public Sort.Direction getDirection() {
+        return direction;
+    }
 }

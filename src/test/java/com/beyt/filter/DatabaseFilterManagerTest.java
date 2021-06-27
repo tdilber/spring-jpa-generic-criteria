@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 
 import javax.persistence.EntityManager;
@@ -279,13 +281,30 @@ class DatabaseFilterManagerTest {
 
     @Test
     void simplifiedSearchQuery() {
-        List<User> result2 = customerRepository.query()
+        List<User> result = customerRepository.query()
                 .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
                 .distinct(false)
-                .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
-                .orderBy(OrderBy("user.name", Order.ASC))
-                .page(0, 5)
+                .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), OR, Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
+                .orderBy(OrderBy("user.id", Order.ASC))
+                .page(0, 2)
                 .getResult(User.class);
 
+        assertEquals(toList(new User(null, user3.getName(), customer3.getName(), user3.getAge(), customer3.getBirthdate()),
+                new User(null, user4.getName(), customer4.getName(), user4.getAge(), customer4.getBirthdate())), result);
+
+        Page<User> resultAsPage = customerRepository.query()
+                .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
+                .distinct(false)
+                .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), OR, Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
+                .orderBy(OrderBy("user.id", Order.ASC))
+                .page(1, 2)
+                .getResultAsPage(User.class);
+
+        assertEquals(toList(new User(null, user5.getName(), customer5.getName(), user5.getAge(), customer5.getBirthdate()),
+                new User(null, user6.getName(), customer6.getName(), user6.getAge(), customer6.getBirthdate())), resultAsPage.getContent());
+
+        assertEquals(4, resultAsPage.getTotalElements());
+        assertEquals(2, resultAsPage.getTotalPages());
+        assertEquals(Sort.Direction.ASC, resultAsPage.getPageable().getSort().getOrderFor("user.id").getDirection());
     }
 }
