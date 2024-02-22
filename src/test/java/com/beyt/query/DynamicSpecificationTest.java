@@ -1,4 +1,4 @@
-package com.beyt.filter;
+package com.beyt.query;
 
 import com.beyt.dto.enums.JoinType;
 import org.junit.jupiter.api.Assertions;
@@ -10,11 +10,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GenericSpecificationTest {
+class DynamicSpecificationTest {
 
     @Test
     void getFieldName() {
-        Assertions.assertEquals("name", GenericSpecification.getFieldName("asd.asd<asd>name"));
+        Assertions.assertEquals("name", DynamicSpecification.getFieldName("asd.asd<asd>name"));
     }
 
     @Test
@@ -24,6 +24,6 @@ class GenericSpecificationTest {
         fieldJoins.add(Pair.of("asdhj", JoinType.LEFT));
         fieldJoins.add(Pair.of("asdasda", JoinType.RIGHT));
 
-        assertEquals(fieldJoins, GenericSpecification.getFieldJoins("asd2fg.asdhj<asdasda>name"));
+        assertEquals(fieldJoins, DynamicSpecification.getFieldJoins("asd2fg.asdhj<asdasda>name"));
     }
 }

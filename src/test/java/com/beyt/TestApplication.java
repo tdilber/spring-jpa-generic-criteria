@@ -1,13 +1,12 @@
 package com.beyt;
 
 import com.beyt.annotation.EnableDynamicQueryArgumentResolvers;
-import com.beyt.util.ApplicationContextUtil;
+import com.beyt.annotation.EnableJpaDynamicQuery;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import(ApplicationContextUtil.class)
+@EnableJpaDynamicQuery
 @EnableDynamicQueryArgumentResolvers
 public class TestApplication {
 

@@ -34,4 +34,21 @@ public class User implements Serializable {
 
     @Column(name = "birthdate")
     private Instant birthdate;
+
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.ORDINAL)
+    private Type type;
+
+    public enum Status {
+        ACTIVE, PASSIVE
+    }
+
+    public enum Type {
+        ADMIN, USER
+    }
 }

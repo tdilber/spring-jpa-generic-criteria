@@ -1,4 +1,4 @@
-package com.beyt.filter;
+package com.beyt.query;
 
 import com.beyt.BaseTestInstance;
 import com.beyt.TestApplication;
@@ -19,23 +19,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
-import static com.beyt.filter.query.simplifier.QuerySimplifier.*;
+import static com.beyt.query.builder.QuerySimplifier.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = TestApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class DatabaseFilterManagerTest extends BaseTestInstance {
+class DynamicQueryManagerTest extends BaseTestInstance {
 
     private SimpleDateFormat dateFormat;
 
     @BeforeAll
-    private void init() {
+    protected void init() {
         userRepository.save(user1);
         userRepository.save(user2);
         userRepository.save(user3);
@@ -61,6 +59,14 @@ class DatabaseFilterManagerTest extends BaseTestInstance {
         // SINGLE CRITERIA TESTS
 
         //Support Single Input => GREATER_THAN_OR_EQUAL, GREATER_THAN, LESS_THAN_OR_EQUAL, LESS_THAN
+        assertEquals(toList(user2, user4, user6, user7),
+                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
+        assertEquals(toList(user1, user2, user3, user4, user5, user6, user7, user8),
+                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE, User.Status.PASSIVE))));
+        assertEquals(toList(user2, user5, user6, user8),
+                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN))));
+        assertEquals(toList(user2, user6),
+                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN), Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
         assertEquals(toList(customer5, customer6, customer7, customer8),
                 customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.GREATER_THAN_OR_EQUAL, 24))));
         assertEquals(toList(customer6, customer7, customer8),
@@ -196,10 +202,9 @@ class DatabaseFilterManagerTest extends BaseTestInstance {
 
     }
 
+    @SafeVarargs
     public static <T> List<T> toList(T... values) {
-        ArrayList<T> list = new ArrayList<>();
-        Collections.addAll(list, values);
-        return list;
+        return List.of(values);
     }
 
     @Test
@@ -232,8 +237,8 @@ class DatabaseFilterManagerTest extends BaseTestInstance {
                 .page(0, 2)
                 .getResult(User.class);
 
-        assertEquals(toList(new User(null, user3.getName(), customer3.getName(), user3.getAge(), customer3.getBirthdate()),
-                new User(null, user4.getName(), customer4.getName(), user4.getAge(), customer4.getBirthdate())), result);
+        assertEquals(toList(new User(null, user3.getName(), customer3.getName(), user3.getAge(), customer3.getBirthdate(), null, null),
+                new User(null, user4.getName(), customer4.getName(), user4.getAge(), customer4.getBirthdate(), null, null)), result);
 
         Page<User> resultAsPage = customerRepository.query()
                 .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
@@ -243,11 +248,21 @@ class DatabaseFilterManagerTest extends BaseTestInstance {
                 .page(1, 2)
                 .getResultAsPage(User.class);
 
-        assertEquals(toList(new User(null, user5.getName(), customer5.getName(), user5.getAge(), customer5.getBirthdate()),
-                new User(null, user6.getName(), customer6.getName(), user6.getAge(), customer6.getBirthdate())), resultAsPage.getContent());
+        assertEquals(toList(new User(null, user5.getName(), customer5.getName(), user5.getAge(), customer5.getBirthdate(), null, null),
+                new User(null, user6.getName(), customer6.getName(), user6.getAge(), customer6.getBirthdate(), null, null)), resultAsPage.getContent());
 
         assertEquals(4, resultAsPage.getTotalElements());
         assertEquals(2, resultAsPage.getTotalPages());
         assertEquals(Sort.Direction.ASC, resultAsPage.getPageable().getSort().getOrderFor("user.id").getDirection());
+    }
+
+    @Test
+    void queryBuilderTests() {
+        assertEquals(toList(user1, user2, user3, user4, user5, user6, user7, user8),
+                userRepository.query().getResult());
+        assertEquals(toList(user2, user4, user6, user7),
+                userRepository.query().where(Field("status").eq(User.Status.ACTIVE)).getResult());
+        assertEquals(toList(user7, user6, user4, user2),
+                userRepository.query().where(Field("status").eq(User.Status.ACTIVE)).orderBy(OrderBy("id", Order.DESC)).getResult());
     }
 }

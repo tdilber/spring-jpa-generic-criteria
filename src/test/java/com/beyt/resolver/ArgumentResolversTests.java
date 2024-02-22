@@ -80,6 +80,14 @@ public class ArgumentResolversTests extends BaseTestInstance {
                 "key0=id&operation0=EQUAL&values0=1", User[].class);
         checkRequestSingleUserEntity(toList(user1, user2, user3), USER_CRITERIA_API_URL,
                 "key0=id&operation0=EQUAL&values0=1,2,3", User[].class);
+        checkRequestSingleUserEntity(toList(user2, user4, user6, user7), USER_CRITERIA_API_URL,
+                "key0=status&operation0=EQUAL&values0=ACTIVE", User[].class);
+        checkRequestSingleUserEntity(toList(user1, user2, user3, user4, user5, user6, user7, user8), USER_CRITERIA_API_URL,
+                "key0=status&operation0=EQUAL&values0=ACTIVE,PASSIVE", User[].class);
+        checkRequestSingleUserEntity(toList(user2, user5, user6, user8), USER_CRITERIA_API_URL,
+                "key0=type&operation0=EQUAL&values0=ADMIN", User[].class);
+        checkRequestSingleUserEntity(toList(user2, user6), USER_CRITERIA_API_URL,
+                "key0=type&operation0=EQUAL&values0=ADMIN&key1=status&operation1=EQUAL&values1=ACTIVE", User[].class);
         checkRequestSingleUserEntity(toList(user1, user2, user3, user4, user6, user7, user8), USER_CRITERIA_API_URL,
                 "key0=id&operation0=NOT_EQUAL&values0=5", User[].class);
         checkRequestSingleUserEntity(toList(user5), USER_CRITERIA_API_URL,
