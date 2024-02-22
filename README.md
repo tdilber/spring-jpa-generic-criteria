@@ -1,30 +1,8 @@
 # JPA - EXTENSION
 
-This project look like QueryDsl but main purpuse is query creation with simple DTO (Pojo) objects. So we can simply ingrate with frontend application filters or somethings. Received query converted to Jpa Specification object and this Specification<Entity> executed on JpaSpecificationExecutor<Entity> repository. 
-
-## TODO
-
-+Namingleri duzenle.
-
-- Genel Refactor.
-  +Bug report. eger ayni joinden birden fazla istek atiliyorsa birden fazla kere inner join yapiliyor.
-  -- DynamicQuery.builder() deyince Query DSL gelsin.
-- Serializable support et. Field convertion'u duzgun yap.
-- Entity Enumarated'larda hata aliyorduk sanki onu da duzelt.
-- SearchQuery'nin Select'siz versiyonunu yap.
-- ApplicationContextUtil kismina baska birsey dusun. => EntityManagerProvider diye Bean yap ve If Condition missing
-  ekle. EntityManager Provide etsin.
-
-+ POM dosyasindaki proje gereksinimi olan dependecyleri kaldir.
-+ POM da versiyon guncelle ve Spring Boot 2.7.18'de calisir durumda test et.
-
-- Spring Boot 3.1.1 de calisir durumda test et.
-- Jar dosyasi olustur ve maven repository'e at.
-- Readme dosyasini duzenle.
-
-## NEXT TODOs
-
-- Policy ile yetkilendirme altyapisi kur ki db'de isteyen istedigi yere git gel yapmasin.
+This project look like QueryDsl but main purpuse is query creation with simple DTO (Pojo) objects. So we can simply
+ingrate with frontend application filters or somethings. Received query converted to Jpa Specification object and this
+Specification<Entity> executed on JpaSpecificationExecutor<Entity> repository.
 
 ```java
   
