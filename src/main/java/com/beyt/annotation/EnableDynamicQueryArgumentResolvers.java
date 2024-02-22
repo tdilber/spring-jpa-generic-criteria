@@ -11,7 +11,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
 @Import({ArgumentResolversInitConfig.class, CriteriaFilterArgumentResolver.class, DynamicQueryArgumentResolver.class})
+@Target({ElementType.TYPE})
+@EnableJpaDynamicQuery
 public @interface EnableDynamicQueryArgumentResolvers {
 }
