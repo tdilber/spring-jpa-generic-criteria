@@ -1,7 +1,7 @@
 package com.beyt.filter;
 
 import com.beyt.dto.Criteria;
-import com.beyt.dto.SearchQuery;
+import com.beyt.dto.DynamicQuery;
 import com.beyt.dto.enums.CriteriaType;
 import com.beyt.filter.rule.specification.*;
 import com.beyt.repository.GenericSpecificationRepositoryImpl;
@@ -106,48 +106,48 @@ public class DatabaseFilterManager {
         return result;
     }
 
-    public static <Entity> List<Entity> getEntityListBySelectableFilterAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
-        return (List<Entity>) DatabaseFilterManager.getEntityListBySelectableFilter(repositoryExecutor, searchQuery, false);
+    public static <Entity> List<Entity> getEntityListBySelectableFilterAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery) {
+        return (List<Entity>) DatabaseFilterManager.getEntityListBySelectableFilter(repositoryExecutor, dynamicQuery, false);
     }
 
-    public static <Entity> Page<Entity> getEntityListBySelectableFilterAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
-        return (Page<Entity>) DatabaseFilterManager.getEntityListBySelectableFilter(repositoryExecutor, searchQuery, true);
+    public static <Entity> Page<Entity> getEntityListBySelectableFilterAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery) {
+        return (Page<Entity>) DatabaseFilterManager.getEntityListBySelectableFilter(repositoryExecutor, dynamicQuery, true);
     }
 
-    protected static <Entity> Iterable<Entity> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, boolean isPage) {
+    protected static <Entity> Iterable<Entity> getEntityListBySelectableFilter(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, boolean isPage) {
         Class<Entity> entityClass = getEntityClass(repositoryExecutor);
-        return getEntityListBySelectableFilterWithReturnType(repositoryExecutor, searchQuery, entityClass, isPage);
+        return getEntityListBySelectableFilterWithReturnType(repositoryExecutor, dynamicQuery, entityClass, isPage);
     }
 
-    public static <Entity> List<Tuple> getEntityListBySelectableFilterWithTupleAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
-        return (List<Tuple>) DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(repositoryExecutor, searchQuery, false);
+    public static <Entity> List<Tuple> getEntityListBySelectableFilterWithTupleAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery) {
+        return (List<Tuple>) DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(repositoryExecutor, dynamicQuery, false);
     }
 
-    public static <Entity> Page<Tuple> getEntityListBySelectableFilterWithTupleAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery) {
-        return (Page<Tuple>) DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(repositoryExecutor, searchQuery, true);
+    public static <Entity> Page<Tuple> getEntityListBySelectableFilterWithTupleAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery) {
+        return (Page<Tuple>) DatabaseFilterManager.getEntityListBySelectableFilterWithTuple(repositoryExecutor, dynamicQuery, true);
     }
 
-    protected static <Entity> Iterable<Tuple> getEntityListBySelectableFilterWithTuple(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, boolean isPage) {
-        return getEntityListWithReturnClass(repositoryExecutor, searchQuery, Tuple.class, isPage);
+    protected static <Entity> Iterable<Tuple> getEntityListBySelectableFilterWithTuple(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, boolean isPage) {
+        return getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, Tuple.class, isPage);
     }
 
-    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilterWithReturnTypeAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
-        return (List<ResultType>) DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(repositoryExecutor, searchQuery, resultTypeClass, false);
+    public static <Entity, ResultType> List<ResultType> getEntityListBySelectableFilterWithReturnTypeAsList(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+        return (List<ResultType>) DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(repositoryExecutor, dynamicQuery, resultTypeClass, false);
     }
 
-    public static <Entity, ResultType> Page<ResultType> getEntityListBySelectableFilterWithReturnTypeAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass) {
-        return (Page<ResultType>) DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(repositoryExecutor, searchQuery, resultTypeClass, true);
+    public static <Entity, ResultType> Page<ResultType> getEntityListBySelectableFilterWithReturnTypeAsPage(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+        return (Page<ResultType>) DatabaseFilterManager.getEntityListBySelectableFilterWithReturnType(repositoryExecutor, dynamicQuery, resultTypeClass, true);
     }
 
-    protected static <Entity, ResultType> Iterable<ResultType> getEntityListBySelectableFilterWithReturnType(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass, boolean isPage) {
+    protected static <Entity, ResultType> Iterable<ResultType> getEntityListBySelectableFilterWithReturnType(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass, boolean isPage) {
         Class<Entity> entityClass = getEntityClass(repositoryExecutor);
-        if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(searchQuery.getSelect())) {
-            return (List<ResultType>) getEntityListWithReturnClass(repositoryExecutor, searchQuery, resultTypeClass, isPage);
+        if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
+            return (List<ResultType>) getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, resultTypeClass, isPage);
         } else {
-            Iterable<Tuple> entityListBySelectableFilter = getEntityListWithReturnClass(repositoryExecutor, searchQuery, Tuple.class, isPage);
+            Iterable<Tuple> entityListBySelectableFilter = getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, Tuple.class, isPage);
 
-            if (!CollectionUtils.isEmpty(searchQuery.getSelect())) {
-                return convertResultToResultTypeList(searchQuery.getSelect(), resultTypeClass, entityListBySelectableFilter, isPage);
+            if (!CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
+                return convertResultToResultTypeList(dynamicQuery.getSelect(), resultTypeClass, entityListBySelectableFilter, isPage);
             } else {
 
                 if (!IterableUtils.isEmpty(entityListBySelectableFilter)) {
@@ -161,22 +161,22 @@ public class DatabaseFilterManager {
         }
     }
 
-    protected static <Entity, ResultType> Iterable<ResultType> getEntityListWithReturnClass(JpaSpecificationExecutor<Entity> repositoryExecutor, SearchQuery searchQuery, Class<ResultType> resultTypeClass, boolean isPage) {
+    protected static <Entity, ResultType> Iterable<ResultType> getEntityListWithReturnClass(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass, boolean isPage) {
         Class<Entity> entityClass = getEntityClass(repositoryExecutor);
         EntityManager entityManager = ApplicationContextUtil.getEntityManager();
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ResultType> query = builder.createQuery(resultTypeClass);
         Root<Entity> root = query.from(entityClass);
-        Specification<Entity> specification = null;
+        GenericSpecification<Entity> specification = new GenericSpecification<>(dynamicQuery.getWhere());
         Pageable pageable = Pageable.unpaged();
 
-        query.distinct(searchQuery.isDistinct());
+        query.distinct(dynamicQuery.isDistinct());
 
-        if (!CollectionUtils.isEmpty(searchQuery.getSelect())) {
+        if (!CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
             List<Selection<?>> selectionList = new ArrayList<>();
 
-            searchQuery.getSelect().forEach(selectField -> {
-                selectionList.add(GenericSpecification.createLocalFrom(root, selectField.getFirst()).get(GenericSpecification.getFieldName(selectField.getFirst())).alias(selectField.getSecond()));
+            dynamicQuery.getSelect().forEach(selectField -> {
+                selectionList.add(specification.createLocalFrom(root, selectField.getFirst()).get(GenericSpecification.getFieldName(selectField.getFirst())).alias(selectField.getSecond()));
             });
             query.multiselect(selectionList);
         } else if (!resultTypeClass.equals(entityClass)) {
@@ -188,15 +188,14 @@ public class DatabaseFilterManager {
             query.multiselect(selectionList);
         }
 
-        if (!CollectionUtils.isEmpty(searchQuery.getWhere())) {
-            specification = new GenericSpecification<>(searchQuery.getWhere());
+        if (!CollectionUtils.isEmpty(dynamicQuery.getWhere())) {
             query.where(specification.toPredicate(root, query, builder));
         }
 
-        if (!CollectionUtils.isEmpty(searchQuery.getOrderBy())) {
+        if (!CollectionUtils.isEmpty(dynamicQuery.getOrderBy())) {
             List<Order> orderList = new ArrayList<>();
-            searchQuery.getOrderBy().forEach((orderPair) -> {
-                orderList.add(orderPair.getSecond() == com.beyt.dto.enums.Order.DESC ? builder.desc(GenericSpecification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))) : builder.asc(GenericSpecification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))));
+            dynamicQuery.getOrderBy().forEach((orderPair) -> {
+                orderList.add(orderPair.getSecond() == com.beyt.dto.enums.Order.DESC ? builder.desc(specification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))) : builder.asc(specification.createLocalFrom(root, orderPair.getFirst()).get(GenericSpecification.getFieldName(orderPair.getFirst()))));
             });
             query.orderBy(orderList);
         }
@@ -204,16 +203,16 @@ public class DatabaseFilterManager {
         TypedQuery<ResultType> typedQuery = entityManager.createQuery(query);
 
 
-        if (Objects.nonNull(searchQuery.getPageSize())) {
-            typedQuery.setMaxResults(searchQuery.getPageSize());
+        if (Objects.nonNull(dynamicQuery.getPageSize())) {
+            typedQuery.setMaxResults(dynamicQuery.getPageSize());
 
-            if (Objects.nonNull(searchQuery.getPageNumber())) {
-                typedQuery.setFirstResult(searchQuery.getPageSize() * searchQuery.getPageNumber());
+            if (Objects.nonNull(dynamicQuery.getPageNumber())) {
+                typedQuery.setFirstResult(dynamicQuery.getPageSize() * dynamicQuery.getPageNumber());
 
-                if (!CollectionUtils.isEmpty(searchQuery.getOrderBy())) {
-                    pageable = PageRequest.of(searchQuery.getPageNumber(), searchQuery.getPageSize(), searchQuery.getOrderBy().get(0).getSecond().getDirection(), searchQuery.getOrderBy().stream().map(Pair::getFirst).toArray(String[]::new));
+                if (!CollectionUtils.isEmpty(dynamicQuery.getOrderBy())) {
+                    pageable = PageRequest.of(dynamicQuery.getPageNumber(), dynamicQuery.getPageSize(), dynamicQuery.getOrderBy().get(0).getSecond().getDirection(), dynamicQuery.getOrderBy().stream().map(Pair::getFirst).toArray(String[]::new));
                 } else {
-                    pageable = PageRequest.of(searchQuery.getPageNumber(), searchQuery.getPageSize());
+                    pageable = PageRequest.of(dynamicQuery.getPageNumber(), dynamicQuery.getPageSize());
                 }
             }
         }

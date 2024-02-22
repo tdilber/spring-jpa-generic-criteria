@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
-@Table(name = "user")
+@Table(name = "test_user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

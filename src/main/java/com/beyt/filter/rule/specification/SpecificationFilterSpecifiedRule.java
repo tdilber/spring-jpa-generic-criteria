@@ -1,7 +1,7 @@
 package com.beyt.filter.rule.specification;
 
 import com.beyt.dto.Criteria;
-import com.beyt.exception.GenericFilterNoAvailableValueException;
+import com.beyt.exception.DynamicQueryNoAvailableValueException;
 import com.beyt.util.SpecificationUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ public class SpecificationFilterSpecifiedRule implements ISpecificationFilterRul
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         SpecificationUtil.checkHasFirstValue(criteria);
         if (!criteria.values.get(0).toString().equalsIgnoreCase("true") && !criteria.values.get(0).toString().equalsIgnoreCase("false")) {
-            throw new GenericFilterNoAvailableValueException("Specified rule first value must be true or false. But you send " + criteria.values.get(0).toString());
+            throw new DynamicQueryNoAvailableValueException("Specified rule first value must be true or false. But you send " + criteria.values.get(0).toString());
         }
 
         return criteria.values.get(0).toString().equalsIgnoreCase("true") ? builder.isNotNull(root.get(criteria.key)) : builder.isNull(root.get(criteria.key));

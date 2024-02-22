@@ -1,9 +1,9 @@
 package com.beyt.repository;
 
 import com.beyt.dto.Criteria;
-import com.beyt.dto.IFetchPartiallyProcessor;
-import com.beyt.dto.SearchQuery;
+import com.beyt.dto.DynamicQuery;
 import com.beyt.filter.query.builder.QueryBuilder;
+import com.beyt.util.ListConsumer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,17 +19,17 @@ public interface GenericSpecificationRepository<T, ID> extends JpaRepository<T, 
 
     List<T> findAllWithCriteria(List<Criteria> criteriaList);
 
-    List<T> findAllWithSearchQuery(SearchQuery searchQuery);
+    List<T> findAllWithSearchQuery(DynamicQuery dynamicQuery);
 
-    Page<T> findAllWithSearchQueryAsPage(SearchQuery searchQuery);
+    Page<T> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery);
 
-    List<Tuple> findAllWithSearchQueryWithTuple(SearchQuery searchQuery);
+    List<Tuple> findAllWithSearchQueryWithTuple(DynamicQuery dynamicQuery);
 
-    Page<Tuple> findAllWithSearchQueryWithTupleAsPage(SearchQuery searchQuery);
+    Page<Tuple> findAllWithSearchQueryWithTupleAsPage(DynamicQuery dynamicQuery);
 
-    <ResultType> List<ResultType> findAllWithSearchQuery(SearchQuery searchQuery, Class<ResultType> resultTypeClass);
+    <ResultType> List<ResultType> findAllWithSearchQuery(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
-    <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(SearchQuery searchQuery, Class<ResultType> resultTypeClass);
+    <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
     QueryBuilder<T, ID> query();
 
@@ -37,9 +37,9 @@ public interface GenericSpecificationRepository<T, ID> extends JpaRepository<T, 
 
     long countWithCriteria(List<Criteria> criteriaList);
 
-    void fetchPartially(IFetchPartiallyProcessor<T> processor, int pageSize);
+    void fetchPartially(ListConsumer<T> processor, int pageSize);
 
-    void fetchPartially(Specification<T> specification, IFetchPartiallyProcessor<T> processor, int pageSize);
+    void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize);
 
-    void fetchPartiallyWithCriteria(List<Criteria> criteriaList, IFetchPartiallyProcessor<T> processor, int pageSize);
+    void fetchPartiallyWithCriteria(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize);
 }

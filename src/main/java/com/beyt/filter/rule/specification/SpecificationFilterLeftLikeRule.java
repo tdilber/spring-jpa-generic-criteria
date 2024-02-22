@@ -1,7 +1,7 @@
 package com.beyt.filter.rule.specification;
 
 import com.beyt.dto.Criteria;
-import com.beyt.exception.GenericFilterNoAvailableValueException;
+import com.beyt.exception.DynamicQueryNoAvailableValueException;
 import com.beyt.util.SpecificationUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +23,7 @@ public class SpecificationFilterLeftLikeRule implements ISpecificationFilterRule
             if (root.get(criteria.key).getJavaType() == String.class) {
                 predicates[i] = builder.like(root.<String>get(criteria.key), "%" + criteria.values.get(i));
             } else {
-                throw new GenericFilterNoAvailableValueException("Need String Type: " + criteria.key);
+                throw new DynamicQueryNoAvailableValueException("Need String Type: " + criteria.key);
             }
         }
 

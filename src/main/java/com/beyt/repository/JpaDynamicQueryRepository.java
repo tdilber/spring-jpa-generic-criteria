@@ -9,71 +9,47 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.support.JpaEntityInformation;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
-import java.io.Serializable;
 import java.util.List;
 
 @NoRepositoryBean
-public class GenericSpecificationRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements GenericSpecificationRepository<T, ID>, JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+public interface JpaDynamicQueryRepository<T, ID> extends GenericSpecificationRepository<T, ID> {
 
-    private final EntityManager entityManager;
-
-    public GenericSpecificationRepositoryImpl(JpaEntityInformation<T, ?> entityInformation,
-                                              EntityManager entityManager) {
-
-        super(entityInformation, entityManager);
-        this.entityManager = entityManager;
-    }
-
-    @Override
-    public List<T> findAllWithCriteria(List<Criteria> criteriaList) {
+    default List<T> findAllWithCriteria(List<Criteria> criteriaList) {
         return DatabaseFilterManager.findAll(this, criteriaList);
     }
 
-    @Override
-    public List<T> findAllWithSearchQuery(DynamicQuery dynamicQuery) {
+    default List<T> findAllWithSearchQuery(DynamicQuery dynamicQuery) {
         return DatabaseFilterManager.getEntityListBySelectableFilterAsList(this, dynamicQuery);
     }
 
-    @Override
-    public Page<T> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery) {
+    default Page<T> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery) {
         return DatabaseFilterManager.getEntityListBySelectableFilterAsPage(this, dynamicQuery);
     }
 
-    @Override
-    public List<Tuple> findAllWithSearchQueryWithTuple(DynamicQuery dynamicQuery) {
+    default List<Tuple> findAllWithSearchQueryWithTuple(DynamicQuery dynamicQuery) {
         return DatabaseFilterManager.getEntityListBySelectableFilterWithTupleAsList(this, dynamicQuery);
     }
 
-    @Override
-    public Page<Tuple> findAllWithSearchQueryWithTupleAsPage(DynamicQuery dynamicQuery) {
+    default Page<Tuple> findAllWithSearchQueryWithTupleAsPage(DynamicQuery dynamicQuery) {
         return DatabaseFilterManager.getEntityListBySelectableFilterWithTupleAsPage(this, dynamicQuery);
     }
 
-    @Override
-    public <ResultType> List<ResultType> findAllWithSearchQuery(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    default <ResultType> List<ResultType> findAllWithSearchQuery(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnTypeAsList(this, dynamicQuery, resultTypeClass);
     }
 
-    @Override
-    public <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    default <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DatabaseFilterManager.getEntityListBySelectableFilterWithReturnTypeAsPage(this, dynamicQuery, resultTypeClass);
     }
 
-    @Override
-    public QueryBuilder<T, ID> query() {
-        return new QueryBuilder<>(this);
+    default QueryBuilder<T, ID> query() {
+        return new QueryBuilder<T, ID>(this);
     }
 
-    @Override
-    public Page<T> findAllWithCriteria(List<Criteria> criteriaList, Pageable pageable) {
+    default Page<T> findAllWithCriteria(List<Criteria> criteriaList, Pageable pageable) {
         return DatabaseFilterManager.findAll(this, criteriaList, pageable);
     }
 
@@ -81,22 +57,15 @@ public class GenericSpecificationRepositoryImpl<T, ID extends Serializable> exte
         return DatabaseFilterManager.getSpecification(criteriaList);
     }
 
-    public Class<T> getDomainClass() {
-        return super.getDomainClass();
-    }
-
-    @Override
-    public long countWithCriteria(List<Criteria> criteriaList) {
+    default long countWithCriteria(List<Criteria> criteriaList) {
         return DatabaseFilterManager.count(this, criteriaList);
     }
 
-    @Override
-    public void fetchPartially(ListConsumer<T> processor, int pageSize) {
+    default void fetchPartially(ListConsumer<T> processor, int pageSize) {
         fetchPartially(null, processor, pageSize);
     }
 
-    @Override
-    public void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
+    default void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
         Page<T> page = this.findAll((Specification<T>) null, PageRequest.of(0, pageSize));
         processor.accept(page.getContent());
         long totalElements = page.getTotalElements();
@@ -106,8 +75,7 @@ public class GenericSpecificationRepositoryImpl<T, ID extends Serializable> exte
         }
     }
 
-    @Override
-    public void fetchPartiallyWithCriteria(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
+    default void fetchPartiallyWithCriteria(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
         long totalElements = DatabaseFilterManager.count(this, criteriaList);
 
         for (int i = 0; (long) i * pageSize < totalElements; i++) {

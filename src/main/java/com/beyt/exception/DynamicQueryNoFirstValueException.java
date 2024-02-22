@@ -6,14 +6,14 @@ import lombok.extern.slf4j.Slf4j;
  * Created by tdilber at 24-Aug-19
  */
 @Slf4j
-public class GenericFilterNoAvailableOperationException extends RuntimeException {
+public class DynamicQueryNoFirstValueException extends RuntimeException {
 
-    public GenericFilterNoAvailableOperationException(String errorMessage) {
+    public DynamicQueryNoFirstValueException(String errorMessage) {
         super(errorMessage);
         log.error(errorMessage, this);
     }
 
-    public GenericFilterNoAvailableOperationException(String errorMessage, Throwable err) {
+    public DynamicQueryNoFirstValueException(String errorMessage, Throwable err) {
         super(errorMessage, err);
         log.error(errorMessage, err);
     }

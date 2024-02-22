@@ -1,9 +1,9 @@
 package com.beyt.resolver;
 
-import com.beyt.dto.CriteriaFilter;
-import com.beyt.dto.SearchQuery;
+import com.beyt.dto.CriteriaList;
+import com.beyt.dto.DynamicQuery;
 import com.beyt.dto.enums.Order;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.MethodParameter;
@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class SearchQueryArgumentResolver implements HandlerMethodArgumentResolver {
+public class DynamicQueryArgumentResolver implements HandlerMethodArgumentResolver {
     private static final String SELECT_FIELD_START = "select";
     private static final String SELECT_AS_FIELD_START = "selectAs";
     private static final String ORDER_BY_FIELD_START = "orderBy";
@@ -28,24 +28,24 @@ public class SearchQueryArgumentResolver implements HandlerMethodArgumentResolve
     private static final String DISTINCT_FIELD_START = "distinct";
     private final CriteriaFilterArgumentResolver criteriaFilterArgumentResolver;
 
-    public SearchQueryArgumentResolver(CriteriaFilterArgumentResolver criteriaFilterArgumentResolver) {
+    public DynamicQueryArgumentResolver(CriteriaFilterArgumentResolver criteriaFilterArgumentResolver) {
         this.criteriaFilterArgumentResolver = criteriaFilterArgumentResolver;
     }
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return SearchQuery.class.equals(parameter.getParameterType());
+        return DynamicQuery.class.equals(parameter.getParameterType());
     }
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        SearchQuery filter = new SearchQuery();
+        DynamicQuery filter = new DynamicQuery();
 
         String pageSizeText = webRequest.getParameter(PAGE_SIZE_FIELD_START);
         String pageText = webRequest.getParameter(PAGE_FIELD_START);
         String distinctText = webRequest.getParameter(DISTINCT_FIELD_START);
 
-        if (Strings.isBlank(pageText)) {
+        if (StringUtils.isBlank(pageText)) {
             pageText = "0";
         }
 
@@ -58,8 +58,8 @@ public class SearchQueryArgumentResolver implements HandlerMethodArgumentResolve
             filter.setDistinct(true);
         }
 
-        CriteriaFilter criteriaFilter = (CriteriaFilter) criteriaFilterArgumentResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
-        filter.setWhere(criteriaFilter);
+        CriteriaList criteriaList = (CriteriaList) criteriaFilterArgumentResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+        filter.setWhere(criteriaList);
 
         for (int i = 0; ; i++) {
             String selectParam = SELECT_FIELD_START + i;

@@ -1,7 +1,7 @@
 package com.beyt.config;
 
 import com.beyt.resolver.CriteriaFilterArgumentResolver;
-import com.beyt.resolver.SearchQueryArgumentResolver;
+import com.beyt.resolver.DynamicQueryArgumentResolver;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -15,16 +15,16 @@ import java.util.List;
 public class ArgumentResolversInitConfig implements WebMvcConfigurer {
 
     private final CriteriaFilterArgumentResolver criteriaFilterArgumentResolver;
-    private final SearchQueryArgumentResolver searchQueryArgumentResolver;
+    private final DynamicQueryArgumentResolver dynamicQueryArgumentResolver;
 
-    public ArgumentResolversInitConfig(CriteriaFilterArgumentResolver criteriaFilterArgumentResolver, SearchQueryArgumentResolver searchQueryArgumentResolver) {
+    public ArgumentResolversInitConfig(CriteriaFilterArgumentResolver criteriaFilterArgumentResolver, DynamicQueryArgumentResolver dynamicQueryArgumentResolver) {
         this.criteriaFilterArgumentResolver = criteriaFilterArgumentResolver;
-        this.searchQueryArgumentResolver = searchQueryArgumentResolver;
+        this.dynamicQueryArgumentResolver = dynamicQueryArgumentResolver;
     }
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(criteriaFilterArgumentResolver);
-        resolvers.add(searchQueryArgumentResolver);
+        resolvers.add(dynamicQueryArgumentResolver);
     }
 }

@@ -3,20 +3,20 @@ package com.beyt.filter;
 import com.beyt.dto.Criteria;
 import com.beyt.dto.enums.CriteriaType;
 import com.beyt.dto.enums.JoinType;
-import com.beyt.exception.GenericFilterNoAvailableEnumException;
-import com.beyt.exception.GenericFilterNoAvailableOperationException;
-import com.beyt.exception.GenericFilterNoAvailableOrOperationUsageException;
-import com.beyt.exception.GenericFilterNoAvailableParanthesOperationUsageException;
+import com.beyt.exception.DynamicQueryNoAvailableEnumException;
+import com.beyt.exception.DynamicQueryNoAvailableOperationException;
+import com.beyt.exception.DynamicQueryNoAvailableOrOperationUsageException;
+import com.beyt.exception.DynamicQueryNoAvailableParenthesesOperationUsageException;
 import com.beyt.util.ReflectionUtil;
 import com.beyt.util.SpecificationUtil;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by tdilber at 24-Aug-19
@@ -25,6 +25,7 @@ import java.util.Objects;
 public class GenericSpecification<Entity> implements Specification<Entity> {
 
     protected List<Criteria> criteriaList;
+    protected Map<Triple<From<?, ?>, String, JoinType>, Join<?, ?>> joinMap = new ConcurrentHashMap<>();
 
     public GenericSpecification(List<Criteria> criteriaList) {
         this.criteriaList = criteriaList;
@@ -40,12 +41,12 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
                 try {
                     predicateAndList.add(new GenericSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).values.get(0)))).toPredicate(root, query, builder));
                 } catch (Exception e) {
-                    throw new GenericFilterNoAvailableParanthesOperationUsageException(
+                    throw new DynamicQueryNoAvailableParenthesesOperationUsageException(
                             "There is No Available Paranthes Operation Usage in Criteria Key: " + criteriaList.get(i).key);
                 }
             } else if (criteriaList.get(i).operation == CriteriaType.OR) {
                 if (i == 0 || i + 1 == criteriaList.size()) {
-                    throw new GenericFilterNoAvailableOrOperationUsageException(
+                    throw new DynamicQueryNoAvailableOrOperationUsageException(
                             "There is No Available OR Operation Usage in Criteria Key: " + criteriaList.get(i).key);
                 }
 
@@ -66,7 +67,7 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
         return addPredicate(localFrom, builder, new Criteria(getFieldName(criteria.key), criteria.operation, criteria.values.toArray(new Object[0])));
     }
 
-    public static From<?, ?> createLocalFrom(Root<?> root, String key) {
+    public From<?, ?> createLocalFrom(Root<?> root, String key) {
         From<?, ?> localFrom = root;
         List<Pair<String, JoinType>> fieldJoins = getFieldJoins(key);
 
@@ -117,7 +118,7 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
             try {
                 criteria.values = ReflectionUtil.convertObjectArrayToIfNotAvailable(root.get(criteria.key).getJavaType(), criteria.values);
             } catch (Exception e) {
-                throw new GenericFilterNoAvailableEnumException("There is a "
+                throw new DynamicQueryNoAvailableEnumException("There is a "
                         + root.get(criteria.key).getJavaType().getSimpleName() + " Enum Problem in Criteria Key: "
                         + criteria.key, e);
             }
@@ -127,12 +128,18 @@ public class GenericSpecification<Entity> implements Specification<Entity> {
             return DatabaseFilterManager.specificationRuleMap
                     .get(criteria.operation).generatePredicate(root, builder, criteria);
         } else {
-            throw new GenericFilterNoAvailableOperationException("There is No Available Operation in Criteria Key: "
+            throw new DynamicQueryNoAvailableOperationException("There is No Available Operation in Criteria Key: "
                     + criteria.key);
         }
     }
 
-    private static Join<?, ?> getJoin(From<?, ?> from, String key, JoinType joinType) {
-        return from.join(key, joinType.getJoinType());
+    protected Join<?, ?> getJoin(From<?, ?> from, String key, JoinType joinType) {
+        Triple<From<?, ?>, String, JoinType> joinMapKey = new ImmutableTriple<>(from, key, joinType);
+        if (joinMap.containsKey(joinMapKey)) {
+            return joinMap.get(joinMapKey);
+        }
+        Join<?, ?> join = from.join(key, joinType.getJoinType());
+        joinMap.put(joinMapKey, join);
+        return join;
     }
 }

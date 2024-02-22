@@ -6,14 +6,14 @@ import lombok.extern.slf4j.Slf4j;
  * Created by tdilber at 24-Aug-19
  */
 @Slf4j
-public class GenericFilterNoAvailableEnumException extends RuntimeException {
+public class DynamicQueryNoAvailableEnumException extends RuntimeException {
 
-    public GenericFilterNoAvailableEnumException(String errorMessage) {
+    public DynamicQueryNoAvailableEnumException(String errorMessage) {
         super(errorMessage);
         log.error(errorMessage, this);
     }
 
-    public GenericFilterNoAvailableEnumException(String errorMessage, Throwable err) {
+    public DynamicQueryNoAvailableEnumException(String errorMessage, Throwable err) {
         super(errorMessage, err);
         log.error(errorMessage, err);
     }

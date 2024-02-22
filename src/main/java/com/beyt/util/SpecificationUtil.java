@@ -1,8 +1,7 @@
 package com.beyt.util;
 
 import com.beyt.dto.Criteria;
-import com.beyt.exception.GenericFilterNoFirstValueException;
-import com.sun.istack.NotNull;
+import com.beyt.exception.DynamicQueryNoFirstValueException;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class SpecificationUtil {
 
-    public static String toLowerCaseFirstLetter(@NotNull String string) {
+    public static String toLowerCaseFirstLetter(String string) {
         if (string.length() <= 1) {
             throw new RuntimeException("String don't have available length!!");
         }
@@ -26,13 +25,13 @@ public class SpecificationUtil {
 
     public static void checkHasFirstValue(Criteria criteria) {
         if (criteria.values.size() == 0) {
-            throw new GenericFilterNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
+            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
         }
     }
 
     public static void checkHasTwoValue(Criteria criteria) {
         if (criteria.values.size() < 2) {
-            throw new GenericFilterNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
+            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
         }
     }
 
