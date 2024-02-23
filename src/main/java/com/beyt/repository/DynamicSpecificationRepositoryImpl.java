@@ -33,47 +33,47 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public List<T> findAllWithCriteria(List<Criteria> criteriaList) {
+    public List<T> findAll(List<Criteria> criteriaList) {
         return DynamicQueryManager.findAll(this, criteriaList);
     }
 
     @Override
-    public List<T> findAllWithSearchQuery(DynamicQuery dynamicQuery) {
+    public List<T> findAll(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterAsList(this, dynamicQuery);
     }
 
     @Override
-    public Page<T> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery) {
+    public Page<T> findAllPage(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterAsPage(this, dynamicQuery);
     }
 
     @Override
-    public List<Tuple> findAllWithSearchQueryWithTuple(DynamicQuery dynamicQuery) {
+    public List<Tuple> findAllTuple(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsList(this, dynamicQuery);
     }
 
     @Override
-    public Page<Tuple> findAllWithSearchQueryWithTupleAsPage(DynamicQuery dynamicQuery) {
+    public Page<Tuple> findAllPageTuple(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsPage(this, dynamicQuery);
     }
 
     @Override
-    public <ResultType> List<ResultType> findAllWithSearchQuery(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    public <ResultType> List<ResultType> findAll(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithReturnTypeAsList(this, dynamicQuery, resultTypeClass);
     }
 
     @Override
-    public <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    public <ResultType> Page<ResultType> findAllPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithReturnTypeAsPage(this, dynamicQuery, resultTypeClass);
     }
 
     @Override
-    public QueryBuilder<T, ID> query() {
+    public QueryBuilder<T, ID> queryBuilder() {
         return new QueryBuilder<>(this);
     }
 
     @Override
-    public Page<T> findAllWithCriteria(List<Criteria> criteriaList, Pageable pageable) {
+    public Page<T> findAll(List<Criteria> criteriaList, Pageable pageable) {
         return DynamicQueryManager.findAll(this, criteriaList, pageable);
     }
 
@@ -86,13 +86,13 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public long countWithCriteria(List<Criteria> criteriaList) {
+    public long count(List<Criteria> criteriaList) {
         return DynamicQueryManager.count(this, criteriaList);
     }
 
     @Override
     public void fetchPartially(ListConsumer<T> processor, int pageSize) {
-        fetchPartially(null, processor, pageSize);
+        fetchPartially((Specification<T>) null, processor, pageSize);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public void fetchPartiallyWithCriteria(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
+    public void fetchPartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
         long totalElements = DynamicQueryManager.count(this, criteriaList);
 
         for (int i = 0; (long) i * pageSize < totalElements; i++) {

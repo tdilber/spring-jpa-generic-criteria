@@ -60,103 +60,103 @@ class DynamicQueryManagerTest extends BaseTestInstance {
 
         //Support Single Input => GREATER_THAN_OR_EQUAL, GREATER_THAN, LESS_THAN_OR_EQUAL, LESS_THAN
         assertEquals(toList(user2, user4, user6, user7),
-                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
+                userRepository.findAll(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
         assertEquals(toList(user1, user2, user3, user4, user5, user6, user7, user8),
-                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE, User.Status.PASSIVE))));
+                userRepository.findAll(CriteriaList.of(Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE, User.Status.PASSIVE))));
         assertEquals(toList(user2, user5, user6, user8),
-                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN))));
+                userRepository.findAll(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN))));
         assertEquals(toList(user2, user6),
-                userRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN), Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
+                userRepository.findAll(CriteriaList.of(Criteria.of("type", CriteriaType.EQUAL, User.Type.ADMIN), Criteria.of("status", CriteriaType.EQUAL, User.Status.ACTIVE))));
         assertEquals(toList(customer5, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.GREATER_THAN_OR_EQUAL, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.GREATER_THAN_OR_EQUAL, 24))));
         assertEquals(toList(customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.GREATER_THAN, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.GREATER_THAN, 24))));
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.LESS_THAN_OR_EQUAL, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.LESS_THAN_OR_EQUAL, 24))));
         assertEquals(toList(customer1, customer2, customer3, customer4),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.LESS_THAN, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.LESS_THAN, 24))));
 
         INSTANCE.add(Calendar.MONTH, 3);
         dateFormat = new SimpleDateFormat();
         assertEquals(toList(customer5, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("birthdate", CriteriaType.LESS_THAN_OR_EQUAL, INSTANCE.toInstant()))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("birthdate", CriteriaType.LESS_THAN_OR_EQUAL, INSTANCE.toInstant()))));
         assertEquals(toList(customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("birthdate", CriteriaType.LESS_THAN, INSTANCE.toInstant()))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("birthdate", CriteriaType.LESS_THAN, INSTANCE.toInstant()))));
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN_OR_EQUAL, INSTANCE.toInstant()))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN_OR_EQUAL, INSTANCE.toInstant()))));
         assertEquals(toList(customer1, customer2, customer3, customer4),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN, INSTANCE.toInstant()))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("birthdate", CriteriaType.GREATER_THAN, INSTANCE.toInstant()))));
 
         // Support Multi Input => EQUAL, NOT_EQUAL
         assertEquals(toList(customer5),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24))));
         assertEquals(toList(customer5, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24, 25, 26))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24, 25, 26))));
         assertEquals(toList(customer4, customer5, customer6),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 23, 24, 25))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 23, 24, 25))));
         assertEquals(toList(),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24), Criteria.of("age", CriteriaType.EQUAL, 25))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 24), Criteria.of("age", CriteriaType.EQUAL, 25))));
         assertEquals(toList(customer6),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 23, 24, 25), Criteria.of("age", CriteriaType.EQUAL, 25, 26))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.EQUAL, 23, 24, 25), Criteria.of("age", CriteriaType.EQUAL, 25, 26))));
 
         assertEquals(toList(customer1, customer2, customer3, customer4, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 24))));
         assertEquals(toList(customer1, customer2, customer3, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 23, 24))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 23, 24))));
         assertEquals(toList(customer1, customer2, customer3, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 23, 24, 25))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaType.NOT_EQUAL, 23, 24, 25))));
 
         // Support Multi Input => CONTAIN, DOES_NOT_CONTAIN, START_WITH, END_WITH
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.CONTAIN, "Customer"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.CONTAIN, "Customer"))));
         assertEquals(toList(customer1, customer2),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.CONTAIN, "1", "2"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.CONTAIN, "1", "2"))));
         assertEquals(toList(customer1, customer2, customer3, customer4, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.DOES_NOT_CONTAIN, "5"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.DOES_NOT_CONTAIN, "5"))));
         assertEquals(toList(customer1, customer2, customer3, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.DOES_NOT_CONTAIN, "5", "4"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.DOES_NOT_CONTAIN, "5", "4"))));
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.START_WITH, "Customer"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.START_WITH, "Customer"))));
         assertEquals(toList(customer3, customer4),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.START_WITH, "Customer 3", "Customer 4"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.START_WITH, "Customer 3", "Customer 4"))));
         assertEquals(toList(customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.END_WITH, " 7"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.END_WITH, " 7"))));
         assertEquals(toList(customer5, customer6),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.END_WITH, "5", "6"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.END_WITH, "5", "6"))));
 
         // Null, Not Null check. Support Single Input => SPECIFIED
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.SPECIFIED, true))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.SPECIFIED, true))));
         assertEquals(toList(customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.SPECIFIED, false))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.SPECIFIED, false))));
 
         // AND CRITERIA TESTs
 
         assertEquals(toList(), // Empty Result
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 24),
                         Criteria.of("age", CriteriaType.EQUAL,  25))));
 
         assertEquals(toList(customer5),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 24),
                         Criteria.of("name", CriteriaType.EQUAL,  "Customer 5"))));
 
         assertEquals(toList(customer1, customer2, customer5),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 20, 21 ,24, 25, 26), // OR 20, 21, 24, 25
                         Criteria.of("age", CriteriaType.NOT_EQUAL,  25, 26)))); // AND NOT 25 AND NOT 26
 
 
         assertEquals(toList(customer1, customer2),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 20, 21 ,24, 25, 26), // OR 20, 21, 24, 25
                         Criteria.of("age", CriteriaType.NOT_EQUAL,  25, 26),// AND NOT 25 AND NOT 26
                         Criteria.of("age", CriteriaType.LESS_THAN, 24)))); // AND LESS THAN 24
 
 
         assertEquals(toList(customer1),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 20, 21, 24, 25, 26), // OR 20, 21, 24, 25
                         Criteria.of("age", CriteriaType.NOT_EQUAL,  25, 26), // AND NOT 25 AND NOT 26
                         Criteria.of("age", CriteriaType.LESS_THAN, 24), // AND LESS THAN 24
@@ -165,19 +165,19 @@ class DynamicQueryManagerTest extends BaseTestInstance {
 
         // OR CRITERIA TESTs
         assertThrows(DynamicQueryNoAvailableOrOperationUsageException.class, () ->
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("", CriteriaType.OR))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("", CriteriaType.OR))));
         assertThrows(DynamicQueryNoAvailableOrOperationUsageException.class, () ->
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("name", CriteriaType.EQUAL, "Customer 1"), Criteria.of("", CriteriaType.OR))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaType.EQUAL, "Customer 1"), Criteria.of("", CriteriaType.OR))));
         assertThrows(DynamicQueryNoAvailableOrOperationUsageException.class, () ->
-                customerRepository.findAllWithCriteria(CriteriaList.of(Criteria.of("", CriteriaType.OR), Criteria.of("name", CriteriaType.EQUAL, "Customer 1"))));
+                customerRepository.findAll(CriteriaList.of(Criteria.of("", CriteriaType.OR), Criteria.of("name", CriteriaType.EQUAL, "Customer 1"))));
 
         assertEquals(toList(customer1, customer2),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("name", CriteriaType.EQUAL, "Customer 1"), Criteria.of("", CriteriaType.OR),
                         Criteria.of("name", CriteriaType.EQUAL, "Customer 2"))));
 
         assertEquals(toList(customer1, customer2, customer3),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("name", CriteriaType.EQUAL, "Customer 1"),
                         Criteria.of("", CriteriaType.OR),
                         Criteria.of("name", CriteriaType.EQUAL, "Customer 2"),
@@ -186,13 +186,13 @@ class DynamicQueryManagerTest extends BaseTestInstance {
                 )));
 
         assertEquals(toList(customer1, customer2, customer3, customer4, customer5, customer6, customer7, customer8),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 24),
                         Criteria.of("", CriteriaType.OR),
                         Criteria.of("age", CriteriaType.NOT_EQUAL,  24))));
 
         assertEquals(toList(customer4, customer5, customer6, customer7),
-                customerRepository.findAllWithCriteria(CriteriaList.of(
+                customerRepository.findAll(CriteriaList.of(
                         Criteria.of("age", CriteriaType.EQUAL, 23, 24),
                         Criteria.of("age", CriteriaType.NOT_EQUAL, 20, 21),
                         Criteria.of("", CriteriaType.OR), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
@@ -221,15 +221,15 @@ class DynamicQueryManagerTest extends BaseTestInstance {
         dynamicQuery1.getSelect().add(Pair.of("name", "name"));
         DynamicQuery dynamicQuery2 = new DynamicQuery();
 
-        List<Customer> allWithSearchQuery1 = customerRepository.findAllWithSearchQuery(dynamicQuery1, Customer.class);
-        List<User> allWithSearchQuery2 = customerRepository.findAllWithSearchQuery(dynamicQuery1, User.class);
-        List<User> allWithSearchQuery3 = customerRepository.findAllWithSearchQuery(dynamicQuery2, User.class);
-        List<Customer> allWithSearchQuery4 = customerRepository.findAllWithSearchQuery(dynamicQuery2, Customer.class);
+        List<Customer> allWithSearchQuery1 = customerRepository.findAll(dynamicQuery1, Customer.class);
+        List<User> allWithSearchQuery2 = customerRepository.findAll(dynamicQuery1, User.class);
+        List<User> allWithSearchQuery3 = customerRepository.findAll(dynamicQuery2, User.class);
+        List<Customer> allWithSearchQuery4 = customerRepository.findAll(dynamicQuery2, Customer.class);
     }
 
     @Test
     void simplifiedSearchQuery() {
-        List<User> result = customerRepository.query()
+        List<User> result = customerRepository.queryBuilder()
                 .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
                 .distinct(false)
                 .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), OR, Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
@@ -240,7 +240,7 @@ class DynamicQueryManagerTest extends BaseTestInstance {
         assertEquals(toList(new User(null, user3.getName(), customer3.getName(), user3.getAge(), customer3.getBirthdate(), null, null),
                 new User(null, user4.getName(), customer4.getName(), user4.getAge(), customer4.getBirthdate(), null, null)), result);
 
-        Page<User> resultAsPage = customerRepository.query()
+        Page<User> resultAsPage = customerRepository.queryBuilder()
                 .select(Select("user.name", "name"), Select("user.age"), Select("name", "surname"), Select("birthdate", "birthdate"))
                 .distinct(false)
                 .where(Parantesis(Field("id").eq(3), OR, Field("user.id").eq(4), OR, Field("id").eq(5)), OR, Parantesis(Field("id").eq(6), OR, Field("id").eq(4), OR, Field("user.id").eq(5)))
@@ -259,10 +259,10 @@ class DynamicQueryManagerTest extends BaseTestInstance {
     @Test
     void queryBuilderTests() {
         assertEquals(toList(user1, user2, user3, user4, user5, user6, user7, user8),
-                userRepository.query().getResult());
+                userRepository.queryBuilder().getResult());
         assertEquals(toList(user2, user4, user6, user7),
-                userRepository.query().where(Field("status").eq(User.Status.ACTIVE)).getResult());
+                userRepository.queryBuilder().where(Field("status").eq(User.Status.ACTIVE)).getResult());
         assertEquals(toList(user7, user6, user4, user2),
-                userRepository.query().where(Field("status").eq(User.Status.ACTIVE)).orderBy(OrderBy("id", Order.DESC)).getResult());
+                userRepository.queryBuilder().where(Field("status").eq(User.Status.ACTIVE)).orderBy(OrderBy("id", Order.DESC)).getResult());
     }
 }

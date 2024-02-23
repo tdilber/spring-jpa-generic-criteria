@@ -17,29 +17,29 @@ import java.util.List;
 @NoRepositoryBean
 public interface DynamicSpecificationRepository<T, ID> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
 
-    List<T> findAllWithCriteria(List<Criteria> criteriaList);
+    List<T> findAll(List<Criteria> criteriaList);
 
-    List<T> findAllWithSearchQuery(DynamicQuery dynamicQuery);
+    List<T> findAll(DynamicQuery dynamicQuery);
 
-    Page<T> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery);
+    Page<T> findAllPage(DynamicQuery dynamicQuery);
 
-    List<Tuple> findAllWithSearchQueryWithTuple(DynamicQuery dynamicQuery);
+    List<Tuple> findAllTuple(DynamicQuery dynamicQuery);
 
-    Page<Tuple> findAllWithSearchQueryWithTupleAsPage(DynamicQuery dynamicQuery);
+    Page<Tuple> findAllPageTuple(DynamicQuery dynamicQuery);
 
-    <ResultType> List<ResultType> findAllWithSearchQuery(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
+    <ResultType> List<ResultType> findAll(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
-    <ResultType> Page<ResultType> findAllWithSearchQueryAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
+    <ResultType> Page<ResultType> findAllPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
-    QueryBuilder<T, ID> query();
+    QueryBuilder<T, ID> queryBuilder();
 
-    Page<T> findAllWithCriteria(List<Criteria> criteriaList, Pageable pageable);
+    Page<T> findAll(List<Criteria> criteriaList, Pageable pageable);
 
-    long countWithCriteria(List<Criteria> criteriaList);
+    long count(List<Criteria> criteriaList);
 
     void fetchPartially(ListConsumer<T> processor, int pageSize);
 
     void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize);
 
-    void fetchPartiallyWithCriteria(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize);
+    void fetchPartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize);
 }

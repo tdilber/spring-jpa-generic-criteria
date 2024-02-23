@@ -218,9 +218,8 @@ public class DynamicQueryManager {
         }
 
         if (isPage) {
-            Specification<Entity> finalSpecification = specification;
             return PageableExecutionUtils.getPage(typedQuery.getResultList(), pageable,
-                    () -> executeCountQuery(getCountQuery(finalSpecification, entityClass)));
+                    () -> executeCountQuery(getCountQuery(specification, entityClass)));
         } else {
             return typedQuery.getResultList();
         }
