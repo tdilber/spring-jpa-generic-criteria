@@ -2,6 +2,7 @@ package com.beyt.util;
 
 import com.beyt.util.field.FieldUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SerializationException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,5 +49,14 @@ public class ReflectionUtil {
         }
 
         return objects;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T deserializeObject(String serialized, Class<T> clazz) throws Exception {
+        if (FieldUtil.isSupportedType(clazz)) {
+            return (T) FieldUtil.fillValue(clazz, serialized);
+        }
+
+        throw new SerializationException("Field Type: " + clazz.getName() + " not supported!");
     }
 }

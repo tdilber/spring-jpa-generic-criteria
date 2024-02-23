@@ -3,11 +3,8 @@ package com.beyt.query;
 import com.beyt.dto.Criteria;
 import com.beyt.dto.enums.CriteriaType;
 import com.beyt.dto.enums.JoinType;
-import com.beyt.exception.DynamicQueryNoAvailableEnumException;
-import com.beyt.exception.DynamicQueryNoAvailableOperationException;
-import com.beyt.exception.DynamicQueryNoAvailableOrOperationUsageException;
-import com.beyt.exception.DynamicQueryNoAvailableParenthesesOperationUsageException;
-import com.beyt.util.ReflectionUtil;
+import com.beyt.exception.*;
+import com.beyt.util.ApplicationContextUtil;
 import com.beyt.util.SpecificationUtil;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
@@ -113,10 +110,10 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
         return splitedKey[splitedKey.length - 1];
     }
 
-    private Predicate addPredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
+    protected Predicate addPredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         if (!criteria.operation.equals(CriteriaType.SPECIFIED)) {
             try {
-                criteria.values = ReflectionUtil.convertObjectArrayToIfNotAvailable(root.get(criteria.key).getJavaType(), criteria.values);
+                criteria.values = deserialize(root.get(criteria.key).getJavaType(), criteria.values);
             } catch (Exception e) {
                 throw new DynamicQueryNoAvailableEnumException("There is a "
                         + root.get(criteria.key).getJavaType().getSimpleName() + " Enum Problem in Criteria Key: "
@@ -141,5 +138,21 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
         Join<?, ?> join = from.join(key, joinType.getJoinType());
         joinMap.put(joinMapKey, join);
         return join;
+    }
+
+    protected List<Object> deserialize(Class<?> clazz, List<Object> objects) throws Exception {
+        List<Object> result = new ArrayList<>();
+        for (Object object : objects) {
+            Object deserialized = null;
+            try {
+                deserialized = ApplicationContextUtil.getDeserializer().deserialize(object.toString(), clazz);
+            } catch (Exception e) {
+                throw new DynamicQueryValueSerializeException("There is a "
+                        + clazz.getSimpleName() + " Deserialization Problem in Criteria Value: "
+                        + object.toString());
+            }
+            result.add(deserialized);
+        }
+        return result;
     }
 }
