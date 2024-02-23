@@ -16,7 +16,7 @@ import java.util.Arrays;
 
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-public class CriteriaFilterArgumentResolver implements HandlerMethodArgumentResolver {
+public class CriteriaListArgumentResolver implements HandlerMethodArgumentResolver {
     private static final String KEY_FIELD_START = "key";
     private static final String OPERATION_FIELD_START = "operation";
     private static final String VALUES_FIELD_START = "values";

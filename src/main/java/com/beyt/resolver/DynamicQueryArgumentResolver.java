@@ -26,10 +26,10 @@ public class DynamicQueryArgumentResolver implements HandlerMethodArgumentResolv
     private static final String PAGE_FIELD_START = "page";
     private static final String PAGE_SIZE_FIELD_START = "pageSize";
     private static final String DISTINCT_FIELD_START = "distinct";
-    private final CriteriaFilterArgumentResolver criteriaFilterArgumentResolver;
+    private final CriteriaListArgumentResolver criteriaListArgumentResolver;
 
-    public DynamicQueryArgumentResolver(CriteriaFilterArgumentResolver criteriaFilterArgumentResolver) {
-        this.criteriaFilterArgumentResolver = criteriaFilterArgumentResolver;
+    public DynamicQueryArgumentResolver(CriteriaListArgumentResolver criteriaListArgumentResolver) {
+        this.criteriaListArgumentResolver = criteriaListArgumentResolver;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DynamicQueryArgumentResolver implements HandlerMethodArgumentResolv
             filter.setDistinct(true);
         }
 
-        CriteriaList criteriaList = (CriteriaList) criteriaFilterArgumentResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+        CriteriaList criteriaList = (CriteriaList) criteriaListArgumentResolver.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
         filter.setWhere(criteriaList);
 
         for (int i = 0; ; i++) {

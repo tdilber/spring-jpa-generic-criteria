@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableJpaRepositories(repositoryFactoryBeanClass = DynamicSpecificationRepositoryFactoryBean.class, basePackages = "com.beyt.testenv.repository")
-public class GenericSpecificationRepositoryConfiguration {
+public class DynamicSpecificationRepositoryConfiguration {
 
 }
