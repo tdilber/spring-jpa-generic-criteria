@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 @Import({ArgumentResolversInitConfig.class, CriteriaListArgumentResolver.class, DynamicQueryArgumentResolver.class})
 @Target({ElementType.TYPE})
 @EnableJpaDynamicQuery
-public @interface EnableDynamicQueryArgumentResolvers {
+public @interface EnableJpaDynamicQueryArgumentResolvers {
 }
