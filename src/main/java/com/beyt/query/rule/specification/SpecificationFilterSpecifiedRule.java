@@ -18,10 +18,10 @@ public class SpecificationFilterSpecifiedRule implements ISpecificationFilterRul
     @Override
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         SpecificationUtil.checkHasFirstValue(criteria);
-        if (!criteria.values.get(0).toString().equalsIgnoreCase("true") && !criteria.values.get(0).toString().equalsIgnoreCase("false")) {
-            throw new DynamicQueryNoAvailableValueException("Specified rule first value must be true or false. But you send " + criteria.values.get(0).toString());
+        if (!criteria.getValues().get(0).toString().equalsIgnoreCase("true") && !criteria.getValues().get(0).toString().equalsIgnoreCase("false")) {
+            throw new DynamicQueryNoAvailableValueException("Specified rule first value must be true or false. But you send " + criteria.getValues().get(0).toString());
         }
 
-        return criteria.values.get(0).toString().equalsIgnoreCase("true") ? builder.isNotNull(root.get(criteria.key)) : builder.isNull(root.get(criteria.key));
+        return criteria.getValues().get(0).toString().equalsIgnoreCase("true") ? builder.isNotNull(root.get(criteria.getKey())) : builder.isNull(root.get(criteria.getKey()));
     }
 }

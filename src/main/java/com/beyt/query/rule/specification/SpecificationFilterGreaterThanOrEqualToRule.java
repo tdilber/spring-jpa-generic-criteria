@@ -17,7 +17,7 @@ public class SpecificationFilterGreaterThanOrEqualToRule implements ISpecificati
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         Predicate predicate;
         SpecificationUtil.checkHasFirstValue(criteria);
-        predicate = builder.greaterThanOrEqualTo(root.<Comparable>get(criteria.key), (Comparable) criteria.values.get(0));
+        predicate = builder.greaterThanOrEqualTo(root.<Comparable>get(criteria.getKey()), (Comparable) criteria.getValues().get(0));
 
         return predicate;
     }

@@ -39,18 +39,18 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
         List<Predicate> predicateAndList = new ArrayList<>();
         List<Predicate> predicateOrList = new ArrayList<>();
         for (int i = 0; i < criteriaList.size(); i++) {
-            if (criteriaList.get(i).operation == CriteriaType.PARENTHES) {
+            if (criteriaList.get(i).getOperation() == CriteriaType.PARENTHES) {
                 SpecificationUtil.checkHasFirstValue(criteriaList.get(i));
                 try {
-                    predicateAndList.add(new DynamicSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).values.get(0))), joinMap).toPredicate(root, query, builder));
+                    predicateAndList.add(new DynamicSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).getValues().get(0))), joinMap).toPredicate(root, query, builder));
                 } catch (Exception e) {
                     throw new DynamicQueryNoAvailableParenthesesOperationUsageException(
-                            "There is No Available Paranthes Operation Usage in Criteria Key: " + criteriaList.get(i).key);
+                            "There is No Available Paranthes Operation Usage in Criteria Key: " + criteriaList.get(i).getKey());
                 }
-            } else if (criteriaList.get(i).operation == CriteriaType.OR) {
+            } else if (criteriaList.get(i).getOperation() == CriteriaType.OR) {
                 if (i == 0 || i + 1 == criteriaList.size()) {
                     throw new DynamicQueryNoAvailableOrOperationUsageException(
-                            "There is No Available OR Operation Usage in Criteria Key: " + criteriaList.get(i).key);
+                            "There is No Available OR Operation Usage in Criteria Key: " + criteriaList.get(i).getKey());
                 }
 
                 predicateOrList.add(builder.and(predicateAndList.toArray(new Predicate[0])));
@@ -66,8 +66,8 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
     }
 
     private Predicate getPredicate(Root<Entity> root, CriteriaBuilder builder, Criteria criteria) {
-        From<?, ?> localFrom = createLocalFrom(root, criteria.key);
-        return addPredicate(localFrom, builder, new Criteria(getFieldName(criteria.key), criteria.operation, criteria.values.toArray(new Object[0])));
+        From<?, ?> localFrom = createLocalFrom(root, criteria.getKey());
+        return addPredicate(localFrom, builder, new Criteria(getFieldName(criteria.getKey()), criteria.getOperation(), criteria.getValues().toArray(new Object[0])));
     }
 
     public From<?, ?> createLocalFrom(Root<?> root, String key) {
@@ -117,22 +117,22 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
     }
 
     protected Predicate addPredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
-        if (!criteria.operation.equals(CriteriaType.SPECIFIED)) {
+        if (!criteria.getOperation().equals(CriteriaType.SPECIFIED)) {
             try {
-                criteria.values = deserialize(root.get(criteria.key).getJavaType(), criteria.values);
+                criteria.setValues(deserialize(root.get(criteria.getKey()).getJavaType(), criteria.getValues()));
             } catch (Exception e) {
                 throw new DynamicQueryNoAvailableEnumException("There is a "
-                        + root.get(criteria.key).getJavaType().getSimpleName() + " Enum Problem in Criteria Key: "
-                        + criteria.key, e);
+                        + root.get(criteria.getKey()).getJavaType().getSimpleName() + " Enum Problem in Criteria Key: "
+                        + criteria.getKey(), e);
             }
         }
 
-        if (DynamicQueryManager.specificationRuleMap.containsKey(criteria.operation)) {
+        if (DynamicQueryManager.specificationRuleMap.containsKey(criteria.getOperation())) {
             return DynamicQueryManager.specificationRuleMap
-                    .get(criteria.operation).generatePredicate(root, builder, criteria);
+                    .get(criteria.getOperation()).generatePredicate(root, builder, criteria);
         } else {
             throw new DynamicQueryNoAvailableOperationException("There is No Available Operation in Criteria Key: "
-                    + criteria.key);
+                    + criteria.getKey());
         }
     }
 

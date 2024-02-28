@@ -24,14 +24,14 @@ public class SpecificationUtil {
     }
 
     public static void checkHasFirstValue(Criteria criteria) {
-        if (criteria.values.size() == 0) {
-            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
+        if (criteria.getValues().size() == 0) {
+            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.getKey());
         }
     }
 
     public static void checkHasTwoValue(Criteria criteria) {
-        if (criteria.values.size() < 2) {
-            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.key);
+        if (criteria.getValues().size() < 2) {
+            throw new DynamicQueryNoFirstValueException("There is No Value in Criteria Key: " + criteria.getKey());
         }
     }
 
@@ -42,13 +42,13 @@ public class SpecificationUtil {
 
     public static void convertObjectToCriteriaValue(Object value, Criteria criteriaDTO) {
         if (value.getClass().isArray()) {
-            criteriaDTO.values = Arrays.asList((Object[]) value);
+            criteriaDTO.setValues(Arrays.asList((Object[]) value));
         } else if (value instanceof List) {
-            criteriaDTO.values = (List) value;
+            criteriaDTO.setValues((List) value);
         } else {
             Object[] array = new Object[1];
             array[0] = value;
-            criteriaDTO.values = Arrays.asList(array);
+            criteriaDTO.setValues(Arrays.asList(array));
         }
     }
 }

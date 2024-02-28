@@ -334,7 +334,7 @@ public class DynamicQueryManager {
         List<Criteria> result = new ArrayList<>();
 
         for (Criteria criteria : searchCriteriaList) {
-            if (map.containsKey(criteria.operation)) {
+            if (map.containsKey(criteria.getOperation())) {
                 result.add(criteria);
             }
         }

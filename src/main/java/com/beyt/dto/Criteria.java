@@ -2,6 +2,8 @@ package com.beyt.dto;
 
 
 import com.beyt.dto.enums.CriteriaType;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -11,10 +13,12 @@ import java.util.List;
 /**
  * Created by tdilber at 24-Aug-19
  */
+@Getter
+@Setter
 public class Criteria implements Serializable {
-    public String key;
-    public CriteriaType operation;
-    public List<Object> values;
+    protected String key;
+    protected CriteriaType operation;
+    protected List<Object> values;
 
     public static Criteria of(String key, CriteriaType operation, Collection<Object> values) {
         return new Criteria(key, operation, values);

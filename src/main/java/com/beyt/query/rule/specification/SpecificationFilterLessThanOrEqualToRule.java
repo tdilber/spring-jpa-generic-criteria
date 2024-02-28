@@ -18,7 +18,7 @@ public class SpecificationFilterLessThanOrEqualToRule implements ISpecificationF
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         Predicate predicate;
         SpecificationUtil.checkHasFirstValue(criteria);
-        predicate = builder.lessThanOrEqualTo(root.<Comparable>get(criteria.key), (Comparable) criteria.values.get(0));
+        predicate = builder.lessThanOrEqualTo(root.<Comparable>get(criteria.getKey()), (Comparable) criteria.getValues().get(0));
 
         return predicate;
     }

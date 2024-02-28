@@ -13,12 +13,12 @@ import java.util.List;
 @Slf4j
 public class DynamicQuery {
 
-    private boolean distinct = false;
-    private Integer pageSize = null;
-    private Integer pageNumber = null;
-    private List<Pair<String, String>> select = new ArrayList<>();
-    private List<Criteria> where = new CriteriaList();
-    private List<Pair<String, Order>> orderBy = new ArrayList<>();
+    protected boolean distinct = false;
+    protected Integer pageSize = null;
+    protected Integer pageNumber = null;
+    protected List<Pair<String, String>> select = new ArrayList<>();
+    protected List<Criteria> where = new CriteriaList();
+    protected List<Pair<String, Order>> orderBy = new ArrayList<>();
 
     public boolean isDistinct() {
         return distinct;

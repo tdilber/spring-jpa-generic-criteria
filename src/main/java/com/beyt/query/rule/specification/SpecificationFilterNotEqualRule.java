@@ -17,9 +17,9 @@ public class SpecificationFilterNotEqualRule implements ISpecificationFilterRule
     @Override
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         SpecificationUtil.checkHasFirstValue(criteria);
-        Predicate[] predicates = new Predicate[criteria.values.size()];
-        for (int i = 0; i < criteria.values.size(); i++) {
-            predicates[i] = builder.notEqual(root.get(criteria.key), criteria.values.get(i));
+        Predicate[] predicates = new Predicate[criteria.getValues().size()];
+        for (int i = 0; i < criteria.getValues().size(); i++) {
+            predicates[i] = builder.notEqual(root.get(criteria.getKey()), criteria.getValues().get(i));
         }
 
         return builder.and(predicates);

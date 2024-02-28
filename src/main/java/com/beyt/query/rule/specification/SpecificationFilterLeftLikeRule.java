@@ -18,12 +18,12 @@ public class SpecificationFilterLeftLikeRule implements ISpecificationFilterRule
     @Override
     public Predicate generatePredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
         SpecificationUtil.checkHasFirstValue(criteria);
-        Predicate[] predicates = new Predicate[criteria.values.size()];
-        for (int i = 0; i < criteria.values.size(); i++) {
-            if (root.get(criteria.key).getJavaType() == String.class) {
-                predicates[i] = builder.like(root.<String>get(criteria.key), "%" + criteria.values.get(i));
+        Predicate[] predicates = new Predicate[criteria.getValues().size()];
+        for (int i = 0; i < criteria.getValues().size(); i++) {
+            if (root.get(criteria.getKey()).getJavaType() == String.class) {
+                predicates[i] = builder.like(root.<String>get(criteria.getKey()), "%" + criteria.getValues().get(i));
             } else {
-                throw new DynamicQueryNoAvailableValueException("Need String Type: " + criteria.key);
+                throw new DynamicQueryNoAvailableValueException("Need String Type: " + criteria.getKey());
             }
         }
 
