@@ -8,6 +8,7 @@ import com.beyt.util.ApplicationContextUtil;
 import com.beyt.util.SpecificationUtil;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.query.criteria.internal.path.RootImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 
@@ -22,10 +23,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DynamicSpecification<Entity> implements Specification<Entity> {
 
     protected List<Criteria> criteriaList;
-    protected Map<Triple<From<?, ?>, String, JoinType>, Join<?, ?>> joinMap = new ConcurrentHashMap<>();
+    protected Map<Triple<String, String, JoinType>, Join<?, ?>> joinMap = new ConcurrentHashMap<>();
 
     public DynamicSpecification(List<Criteria> criteriaList) {
         this.criteriaList = criteriaList;
+        this.joinMap = new ConcurrentHashMap<>();
+    }
+
+    public DynamicSpecification(List<Criteria> criteriaList, Map<Triple<String, String, JoinType>, Join<?, ?>> joinMap) {
+        this.criteriaList = criteriaList;
+        this.joinMap = joinMap;
     }
 
     @Override
@@ -36,7 +43,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
             if (criteriaList.get(i).operation == CriteriaType.PARENTHES) {
                 SpecificationUtil.checkHasFirstValue(criteriaList.get(i));
                 try {
-                    predicateAndList.add(new DynamicSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).values.get(0)))).toPredicate(root, query, builder));
+                    predicateAndList.add(new DynamicSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).values.get(0))), joinMap).toPredicate(root, query, builder));
                 } catch (Exception e) {
                     throw new DynamicQueryNoAvailableParenthesesOperationUsageException(
                             "There is No Available Paranthes Operation Usage in Criteria Key: " + criteriaList.get(i).key);
@@ -131,7 +138,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
     }
 
     protected Join<?, ?> getJoin(From<?, ?> from, String key, JoinType joinType) {
-        Triple<From<?, ?>, String, JoinType> joinMapKey = new ImmutableTriple<>(from, key, joinType);
+        Triple<String, String, JoinType> joinMapKey = new ImmutableTriple<>(((RootImpl) from).getEntityType().getJavaType().getName(), key, joinType);
         if (joinMap.containsKey(joinMapKey)) {
             return joinMap.get(joinMapKey);
         }
