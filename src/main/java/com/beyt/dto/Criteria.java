@@ -1,7 +1,7 @@
 package com.beyt.dto;
 
 
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,21 +17,25 @@ import java.util.List;
 @Setter
 public class Criteria implements Serializable {
     protected String key;
-    protected CriteriaType operation;
+    protected CriteriaOperator operation;
     protected List<Object> values;
 
-    public static Criteria of(String key, CriteriaType operation, Collection<Object> values) {
+    public static Criteria of(String key, CriteriaOperator operation, Collection<Object> values) {
         return new Criteria(key, operation, values);
     }
 
-    public static Criteria of(String key, CriteriaType operation, Object... values) {
+    public static Criteria of(String key, CriteriaOperator operation, Object... values) {
         return new Criteria(key, operation, values);
     }
 
-    public Criteria(String key, CriteriaType operation, Object... values) {
+    public Criteria(String key, CriteriaOperator operation, Object... values) {
         this.key = key;
         this.operation = operation;
         this.values = values != null ? Arrays.asList(values) : null;
+    }
+
+    public static Criteria OR() {
+        return Criteria.of("", CriteriaOperator.OR);
     }
 
     public Criteria() {

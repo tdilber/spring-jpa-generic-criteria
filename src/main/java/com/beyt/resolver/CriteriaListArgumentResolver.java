@@ -2,7 +2,7 @@ package com.beyt.resolver;
 
 import com.beyt.dto.Criteria;
 import com.beyt.dto.CriteriaList;
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.MethodParameter;
@@ -37,7 +37,7 @@ public class CriteriaListArgumentResolver implements HandlerMethodArgumentResolv
             String operation = webRequest.getParameter(operationField);
             String values = webRequest.getParameter(valuesField);
             if (key != null && operation != null && values != null) {
-                Criteria criteria = new Criteria(key, CriteriaType.valueOf(operation), null);
+                Criteria criteria = new Criteria(key, CriteriaOperator.valueOf(operation), null);
                 criteria.setValues(Arrays.asList(values.split(",")));
                 filter.add(criteria);
             } else {

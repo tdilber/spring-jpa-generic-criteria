@@ -4,7 +4,7 @@ package com.beyt.dto.enums;
 /**
  * Created by tdilber at 15-Sep-19
  */
-public enum CriteriaType {
+public enum CriteriaOperator {
     CONTAIN(1, "İçeriyor (String)"),
     DOES_NOT_CONTAIN(2, "İçermiyor (String)"),
     END_WITH(3, "İle bitiyor (String)"),
@@ -22,7 +22,7 @@ public enum CriteriaType {
     private int value = -1;
     private String meaning;
 
-    CriteriaType(int value, String meaning) {
+    CriteriaOperator(int value, String meaning) {
         this.value = value;
         this.meaning = meaning;
     }

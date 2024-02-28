@@ -1,7 +1,7 @@
 package com.beyt.query.builder;
 
 import com.beyt.dto.Criteria;
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import com.beyt.dto.enums.Order;
 import com.beyt.query.DynamicSpecification;
 import lombok.AllArgsConstructor;
@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 import java.util.Arrays;
 
 public class QuerySimplifier {
-    public static final Criteria OR = Criteria.of("", CriteriaType.OR);
+    public static final Criteria OR = Criteria.OR();
 
     public static Field Field(String name) {
         return new Field(name);
     }
 
     public static Criteria Parantesis(Criteria... criterias) {
-        return Criteria.of("", CriteriaType.PARENTHES, Arrays.asList(criterias));
+        return Criteria.of("", CriteriaOperator.PARENTHES, Arrays.asList(criterias));
     }
 
     public static OrderByRule OrderBy(String fieldName, Order orderType) {
@@ -57,55 +57,55 @@ public class QuerySimplifier {
         }
 
         public Criteria eq(Object... values) {
-            return Criteria.of(name, CriteriaType.EQUAL, values);
+            return Criteria.of(name, CriteriaOperator.EQUAL, values);
         }
 
         public Criteria notEq(Object... values) {
-            return Criteria.of(name, CriteriaType.NOT_EQUAL, values);
+            return Criteria.of(name, CriteriaOperator.NOT_EQUAL, values);
         }
 
         public Criteria contain(Object... values) {
-            return Criteria.of(name, CriteriaType.CONTAIN, values);
+            return Criteria.of(name, CriteriaOperator.CONTAIN, values);
         }
 
         public Criteria doesNotContain(Object... values) {
-            return Criteria.of(name, CriteriaType.DOES_NOT_CONTAIN, values);
+            return Criteria.of(name, CriteriaOperator.DOES_NOT_CONTAIN, values);
         }
 
         public Criteria endWith(Object... values) {
-            return Criteria.of(name, CriteriaType.END_WITH, values);
+            return Criteria.of(name, CriteriaOperator.END_WITH, values);
         }
 
         public Criteria startWith(Object... values) {
-            return Criteria.of(name, CriteriaType.START_WITH, values);
+            return Criteria.of(name, CriteriaOperator.START_WITH, values);
         }
 
         public Criteria specified(boolean value) {
-            return Criteria.of(name, CriteriaType.SPECIFIED, value);
+            return Criteria.of(name, CriteriaOperator.SPECIFIED, value);
         }
 
         public Criteria isNull() {
-            return Criteria.of(name, CriteriaType.SPECIFIED, false);
+            return Criteria.of(name, CriteriaOperator.SPECIFIED, false);
         }
 
         public Criteria nonNull() {
-            return Criteria.of(name, CriteriaType.SPECIFIED, true);
+            return Criteria.of(name, CriteriaOperator.SPECIFIED, true);
         }
 
         public Criteria greaterThan(Object value) {
-            return Criteria.of(name, CriteriaType.GREATER_THAN, value);
+            return Criteria.of(name, CriteriaOperator.GREATER_THAN, value);
         }
 
         public Criteria greaterThanOrEqual(Object value) {
-            return Criteria.of(name, CriteriaType.GREATER_THAN_OR_EQUAL, value);
+            return Criteria.of(name, CriteriaOperator.GREATER_THAN_OR_EQUAL, value);
         }
 
         public Criteria lessThan(Object value) {
-            return Criteria.of(name, CriteriaType.LESS_THAN, value);
+            return Criteria.of(name, CriteriaOperator.LESS_THAN, value);
         }
 
         public Criteria lessThanOrEqual(Object value) {
-            return Criteria.of(name, CriteriaType.LESS_THAN_OR_EQUAL, value);
+            return Criteria.of(name, CriteriaOperator.LESS_THAN_OR_EQUAL, value);
         }
     }
 }

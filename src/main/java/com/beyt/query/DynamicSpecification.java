@@ -1,7 +1,7 @@
 package com.beyt.query;
 
 import com.beyt.dto.Criteria;
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import com.beyt.dto.enums.JoinType;
 import com.beyt.exception.*;
 import com.beyt.util.ApplicationContextUtil;
@@ -39,7 +39,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
         List<Predicate> predicateAndList = new ArrayList<>();
         List<Predicate> predicateOrList = new ArrayList<>();
         for (int i = 0; i < criteriaList.size(); i++) {
-            if (criteriaList.get(i).getOperation() == CriteriaType.PARENTHES) {
+            if (criteriaList.get(i).getOperation() == CriteriaOperator.PARENTHES) {
                 SpecificationUtil.checkHasFirstValue(criteriaList.get(i));
                 try {
                     predicateAndList.add(new DynamicSpecification<Entity>(((List<Criteria>) (criteriaList.get(i).getValues().get(0))), joinMap).toPredicate(root, query, builder));
@@ -47,7 +47,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
                     throw new DynamicQueryNoAvailableParenthesesOperationUsageException(
                             "There is No Available Paranthes Operation Usage in Criteria Key: " + criteriaList.get(i).getKey());
                 }
-            } else if (criteriaList.get(i).getOperation() == CriteriaType.OR) {
+            } else if (criteriaList.get(i).getOperation() == CriteriaOperator.OR) {
                 if (i == 0 || i + 1 == criteriaList.size()) {
                     throw new DynamicQueryNoAvailableOrOperationUsageException(
                             "There is No Available OR Operation Usage in Criteria Key: " + criteriaList.get(i).getKey());
@@ -117,7 +117,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
     }
 
     protected Predicate addPredicate(Path<?> root, CriteriaBuilder builder, Criteria criteria) {
-        if (!criteria.getOperation().equals(CriteriaType.SPECIFIED)) {
+        if (!criteria.getOperation().equals(CriteriaOperator.SPECIFIED)) {
             try {
                 criteria.setValues(deserialize(root.get(criteria.getKey()).getJavaType(), criteria.getValues()));
             } catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.beyt.dto;
 
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -27,7 +27,7 @@ public class CriteriaList extends ArrayList<Criteria> implements Serializable {
         return criteriaList;
     }
 
-    public List<Criteria> getCriteriaListByKeyAndOperation(String key, CriteriaType operation) {
+    public List<Criteria> getCriteriaListByKeyAndOperation(String key, CriteriaOperator operation) {
         ArrayList<Criteria> criterias = new ArrayList<>();
 
         for (Criteria criteria : this) {

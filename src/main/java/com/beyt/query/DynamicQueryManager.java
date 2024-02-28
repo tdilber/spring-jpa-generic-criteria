@@ -2,7 +2,7 @@ package com.beyt.query;
 
 import com.beyt.dto.Criteria;
 import com.beyt.dto.DynamicQuery;
-import com.beyt.dto.enums.CriteriaType;
+import com.beyt.dto.enums.CriteriaOperator;
 import com.beyt.query.rule.specification.*;
 import com.beyt.repository.DynamicSpecificationRepositoryImpl;
 import com.beyt.util.ApplicationContextUtil;
@@ -39,22 +39,22 @@ import java.util.stream.Stream;
 @Slf4j
 public class DynamicQueryManager {
 
-    public final static Map<CriteriaType, ISpecificationFilterRule> specificationRuleMap = new HashMap<>();
+    public final static Map<CriteriaOperator, ISpecificationFilterRule> specificationRuleMap = new HashMap<>();
 
     static {
-        specificationRuleMap.put(CriteriaType.CONTAIN, new SpecificationFilterDoubleLikeRule());
-        specificationRuleMap.put(CriteriaType.DOES_NOT_CONTAIN, new SpecificationFilterDoesNotContainRule());
-        specificationRuleMap.put(CriteriaType.END_WITH, new SpecificationFilterLeftLikeRule());
-        specificationRuleMap.put(CriteriaType.START_WITH, new SpecificationFilterRightLikeRule());
-        specificationRuleMap.put(CriteriaType.SPECIFIED, new SpecificationFilterSpecifiedRule());
-        specificationRuleMap.put(CriteriaType.EQUAL, new SpecificationFilterEqualRule());
-        specificationRuleMap.put(CriteriaType.NOT_EQUAL, new SpecificationFilterNotEqualRule());
-        specificationRuleMap.put(CriteriaType.GREATER_THAN, new SpecificationFilterGreaterThanRule());
-        specificationRuleMap.put(CriteriaType.GREATER_THAN_OR_EQUAL, new SpecificationFilterGreaterThanOrEqualToRule());
-        specificationRuleMap.put(CriteriaType.LESS_THAN, new SpecificationFilterLessThanRule());
-        specificationRuleMap.put(CriteriaType.LESS_THAN_OR_EQUAL, new SpecificationFilterLessThanOrEqualToRule());
-        specificationRuleMap.put(CriteriaType.OR, null);
-        specificationRuleMap.put(CriteriaType.PARENTHES, null);
+        specificationRuleMap.put(CriteriaOperator.CONTAIN, new SpecificationFilterDoubleLikeRule());
+        specificationRuleMap.put(CriteriaOperator.DOES_NOT_CONTAIN, new SpecificationFilterDoesNotContainRule());
+        specificationRuleMap.put(CriteriaOperator.END_WITH, new SpecificationFilterLeftLikeRule());
+        specificationRuleMap.put(CriteriaOperator.START_WITH, new SpecificationFilterRightLikeRule());
+        specificationRuleMap.put(CriteriaOperator.SPECIFIED, new SpecificationFilterSpecifiedRule());
+        specificationRuleMap.put(CriteriaOperator.EQUAL, new SpecificationFilterEqualRule());
+        specificationRuleMap.put(CriteriaOperator.NOT_EQUAL, new SpecificationFilterNotEqualRule());
+        specificationRuleMap.put(CriteriaOperator.GREATER_THAN, new SpecificationFilterGreaterThanRule());
+        specificationRuleMap.put(CriteriaOperator.GREATER_THAN_OR_EQUAL, new SpecificationFilterGreaterThanOrEqualToRule());
+        specificationRuleMap.put(CriteriaOperator.LESS_THAN, new SpecificationFilterLessThanRule());
+        specificationRuleMap.put(CriteriaOperator.LESS_THAN_OR_EQUAL, new SpecificationFilterLessThanOrEqualToRule());
+        specificationRuleMap.put(CriteriaOperator.OR, null);
+        specificationRuleMap.put(CriteriaOperator.PARENTHES, null);
     }
 
     public static <Entity> List<Entity> findAll(JpaSpecificationExecutor<Entity> repositoryExecutor,
@@ -330,7 +330,7 @@ public class DynamicQueryManager {
         }
     }
 
-    protected static <M extends Map<CriteriaType, ?>> List<Criteria> getMapSpecificRules(M map, List<Criteria> searchCriteriaList) {
+    protected static <M extends Map<CriteriaOperator, ?>> List<Criteria> getMapSpecificRules(M map, List<Criteria> searchCriteriaList) {
         List<Criteria> result = new ArrayList<>();
 
         for (Criteria criteria : searchCriteriaList) {
