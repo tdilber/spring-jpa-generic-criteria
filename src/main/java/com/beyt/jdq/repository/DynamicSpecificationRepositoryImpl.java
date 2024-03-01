@@ -43,17 +43,17 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public Page<T> findAllPage(DynamicQuery dynamicQuery) {
+    public Page<T> findAllAsPage(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterAsPage(this, dynamicQuery);
     }
 
     @Override
-    public List<Tuple> findAllTuple(DynamicQuery dynamicQuery) {
+    public List<Tuple> findAllAsTuple(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsList(this, dynamicQuery);
     }
 
     @Override
-    public Page<Tuple> findAllPageTuple(DynamicQuery dynamicQuery) {
+    public Page<Tuple> findAllAsTuplePage(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsPage(this, dynamicQuery);
     }
 
@@ -63,7 +63,7 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public <ResultType> Page<ResultType> findAllPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    public <ResultType> Page<ResultType> findAllAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithReturnTypeAsPage(this, dynamicQuery, resultTypeClass);
     }
 
@@ -91,12 +91,12 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public void fetchPartially(ListConsumer<T> processor, int pageSize) {
-        fetchPartially((Specification<T>) null, processor, pageSize);
+    public void consumePartially(ListConsumer<T> processor, int pageSize) {
+        consumePartially((Specification<T>) null, processor, pageSize);
     }
 
     @Override
-    public void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
+    public void consumePartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
         Page<T> page = this.findAll((Specification<T>) null, PageRequest.of(0, pageSize));
         processor.accept(page.getContent());
         long totalElements = page.getTotalElements();
@@ -107,7 +107,7 @@ public class DynamicSpecificationRepositoryImpl<T, ID extends Serializable> exte
     }
 
     @Override
-    public void fetchPartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
+    public void consumePartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
         long totalElements = DynamicQueryManager.count(this, criteriaList);
 
         for (int i = 0; (long) i * pageSize < totalElements; i++) {

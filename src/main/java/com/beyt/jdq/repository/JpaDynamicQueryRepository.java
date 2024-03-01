@@ -25,15 +25,15 @@ public interface JpaDynamicQueryRepository<T, ID> extends DynamicSpecificationRe
         return DynamicQueryManager.getEntityListBySelectableFilterAsList(this, dynamicQuery);
     }
 
-    default Page<T> findAllPage(DynamicQuery dynamicQuery) {
+    default Page<T> findAllAsPage(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterAsPage(this, dynamicQuery);
     }
 
-    default List<Tuple> findAllTuple(DynamicQuery dynamicQuery) {
+    default List<Tuple> findAllAsTuple(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsList(this, dynamicQuery);
     }
 
-    default Page<Tuple> findAllPageTuple(DynamicQuery dynamicQuery) {
+    default Page<Tuple> findAllAsTuplePage(DynamicQuery dynamicQuery) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithTupleAsPage(this, dynamicQuery);
     }
 
@@ -41,7 +41,7 @@ public interface JpaDynamicQueryRepository<T, ID> extends DynamicSpecificationRe
         return DynamicQueryManager.getEntityListBySelectableFilterWithReturnTypeAsList(this, dynamicQuery, resultTypeClass);
     }
 
-    default <ResultType> Page<ResultType> findAllPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+    default <ResultType> Page<ResultType> findAllAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
         return DynamicQueryManager.getEntityListBySelectableFilterWithReturnTypeAsPage(this, dynamicQuery, resultTypeClass);
     }
 
@@ -53,7 +53,7 @@ public interface JpaDynamicQueryRepository<T, ID> extends DynamicSpecificationRe
         return DynamicQueryManager.findAll(this, criteriaList, pageable);
     }
 
-    static <T> Specification<T> getSpecificationWithCriteria(List<Criteria> criteriaList) {
+    static <T> Specification<T> createSpecification(List<Criteria> criteriaList) {
         return DynamicQueryManager.getSpecification(criteriaList);
     }
 
@@ -61,11 +61,11 @@ public interface JpaDynamicQueryRepository<T, ID> extends DynamicSpecificationRe
         return DynamicQueryManager.count(this, criteriaList);
     }
 
-    default void fetchPartially(ListConsumer<T> processor, int pageSize) {
-        fetchPartially((Specification<T>) null, processor, pageSize);
+    default void consumePartially(ListConsumer<T> processor, int pageSize) {
+        consumePartially((Specification<T>) null, processor, pageSize);
     }
 
-    default void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
+    default void consumePartially(Specification<T> specification, ListConsumer<T> processor, int pageSize) {
         Page<T> page = this.findAll((Specification<T>) null, PageRequest.of(0, pageSize));
         processor.accept(page.getContent());
         long totalElements = page.getTotalElements();
@@ -75,7 +75,7 @@ public interface JpaDynamicQueryRepository<T, ID> extends DynamicSpecificationRe
         }
     }
 
-    default void fetchPartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
+    default void consumePartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize) {
         long totalElements = DynamicQueryManager.count(this, criteriaList);
 
         for (int i = 0; (long) i * pageSize < totalElements; i++) {

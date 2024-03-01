@@ -39,7 +39,7 @@ public class TestController {
 
     @GetMapping("/user/as-page")
     public ResponseEntity<Page<User>> getUserWithSearchFilterAsPage(DynamicQuery dynamicQuery) {
-        Page<User> userList = userRepository.findAllPage(dynamicQuery);
+        Page<User> userList = userRepository.findAllAsPage(dynamicQuery);
         return ResponseEntity.ok().body(userList);
     }
 
@@ -51,7 +51,7 @@ public class TestController {
 
     @GetMapping("/customer/as-page")
     public ResponseEntity<Page<Customer>> getCustomerWithSearchFilterAsPage(DynamicQuery dynamicQuery) {
-        Page<Customer> customerList = customerRepository.findAllPage(dynamicQuery);
+        Page<Customer> customerList = customerRepository.findAllAsPage(dynamicQuery);
         return ResponseEntity.ok().body(customerList);
     }
 

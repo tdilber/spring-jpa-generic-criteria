@@ -21,15 +21,15 @@ public interface DynamicSpecificationRepository<T, ID> extends JpaRepository<T, 
 
     List<T> findAll(DynamicQuery dynamicQuery);
 
-    Page<T> findAllPage(DynamicQuery dynamicQuery);
+    Page<T> findAllAsPage(DynamicQuery dynamicQuery);
 
-    List<Tuple> findAllTuple(DynamicQuery dynamicQuery);
+    List<Tuple> findAllAsTuple(DynamicQuery dynamicQuery);
 
-    Page<Tuple> findAllPageTuple(DynamicQuery dynamicQuery);
+    Page<Tuple> findAllAsTuplePage(DynamicQuery dynamicQuery);
 
     <ResultType> List<ResultType> findAll(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
-    <ResultType> Page<ResultType> findAllPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
+    <ResultType> Page<ResultType> findAllAsPage(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass);
 
     QueryBuilder<T, ID> queryBuilder();
 
@@ -37,9 +37,9 @@ public interface DynamicSpecificationRepository<T, ID> extends JpaRepository<T, 
 
     long count(List<Criteria> criteriaList);
 
-    void fetchPartially(ListConsumer<T> processor, int pageSize);
+    void consumePartially(ListConsumer<T> processor, int pageSize);
 
-    void fetchPartially(Specification<T> specification, ListConsumer<T> processor, int pageSize);
+    void consumePartially(Specification<T> specification, ListConsumer<T> processor, int pageSize);
 
-    void fetchPartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize);
+    void consumePartially(List<Criteria> criteriaList, ListConsumer<T> processor, int pageSize);
 }

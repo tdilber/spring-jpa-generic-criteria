@@ -122,7 +122,7 @@ public class DynamicSpecification<Entity> implements Specification<Entity> {
                 criteria.setValues(deserialize(root.get(criteria.getKey()).getJavaType(), criteria.getValues()));
             } catch (Exception e) {
                 throw new DynamicQueryNoAvailableEnumException("There is a "
-                        + root.get(criteria.getKey()).getJavaType().getSimpleName() + " Enum Problem in Criteria Key: "
+                        + root.get(criteria.getKey()).getJavaType().getSimpleName() + "  Problem in Criteria Key: "
                         + criteria.getKey(), e);
             }
         }
