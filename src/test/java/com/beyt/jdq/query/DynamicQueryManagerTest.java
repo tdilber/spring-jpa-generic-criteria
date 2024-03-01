@@ -10,6 +10,8 @@ import com.beyt.jdq.dto.enums.Order;
 import com.beyt.jdq.exception.DynamicQueryNoAvailableOrOperationUsageException;
 import com.beyt.jdq.testenv.entity.Customer;
 import com.beyt.jdq.testenv.entity.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 
+import javax.persistence.Tuple;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -264,5 +267,26 @@ class DynamicQueryManagerTest extends BaseTestInstance {
                 userRepository.queryBuilder().where(Field("status").eq(User.Status.ACTIVE)).getResult());
         assertEquals(toList(user7, user6, user4, user2),
                 userRepository.queryBuilder().where(Field("status").eq(User.Status.ACTIVE)).orderBy(OrderBy("id", Order.DESC)).getResult());
+    }
+
+    public static class UserName {
+        @Getter
+        @Setter
+        private String name;
+    }
+
+    @Test
+    void page() {
+        DynamicQuery dynamicQuery = new DynamicQuery();
+        dynamicQuery.setWhere(CriteriaList.of(Criteria.of("id", CriteriaOperator.GREATER_THAN, 3)));
+        dynamicQuery.setPageSize(2);
+        dynamicQuery.setPageNumber(1);
+        Page<User> result = userRepository.findAllAsPage(dynamicQuery);
+        assertEquals(toList(user6, user7), result.getContent());
+        dynamicQuery.getSelect().add(Pair.of("name", "name"));
+        Page<UserName> result2 = userRepository.findAllAsPage(dynamicQuery, UserName.class);
+        assertEquals(toList(user6.getName(), user7.getName()), result2.getContent().stream().map(UserName::getName).toList());
+        List<Tuple> allAsTuple = userRepository.findAllAsTuple(dynamicQuery);
+        Page<Tuple> allAsTuplePage = userRepository.findAllAsTuplePage(dynamicQuery);
     }
 }

@@ -142,7 +142,7 @@ public class DynamicQueryManager {
     protected static <Entity, ResultType> Iterable<ResultType> getEntityListBySelectableFilterWithReturnType(JpaSpecificationExecutor<Entity> repositoryExecutor, DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass, boolean isPage) {
         Class<Entity> entityClass = getEntityClass(repositoryExecutor);
         if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
-            return (List<ResultType>) getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, resultTypeClass, isPage);
+            return getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, resultTypeClass, isPage);
         } else {
             Iterable<Tuple> entityListBySelectableFilter = getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, Tuple.class, isPage);
 
