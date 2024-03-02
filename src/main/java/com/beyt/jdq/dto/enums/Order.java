@@ -2,12 +2,14 @@ package com.beyt.jdq.dto.enums;
 
 import org.springframework.data.domain.Sort;
 
+import java.io.Serializable;
+
 /**
  * {@code Order} defines ascending and descending order
  *
  * @author tiwe
  */
-public enum Order {
+public enum Order implements Serializable {
     /**
      * Ascending order
      */

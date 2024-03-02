@@ -4,6 +4,7 @@ import com.beyt.jdq.dto.enums.Order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * Created by tdilber at 30-Dec-20
  */
 @Slf4j
-public class DynamicQuery {
+public class DynamicQuery implements Serializable {
 
     protected boolean distinct = false;
     protected Integer pageSize = null;

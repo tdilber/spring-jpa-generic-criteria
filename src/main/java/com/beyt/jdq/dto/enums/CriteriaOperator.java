@@ -1,10 +1,12 @@
 package com.beyt.jdq.dto.enums;
 
 
+import java.io.Serializable;
+
 /**
  * Created by tdilber at 15-Sep-19
  */
-public enum CriteriaOperator {
+public enum CriteriaOperator implements Serializable {
     CONTAIN(1, "İçeriyor (String)"),
     DOES_NOT_CONTAIN(2, "İçermiyor (String)"),
     END_WITH(3, "İle bitiyor (String)"),

@@ -1,9 +1,11 @@
 package com.beyt.jdq.dto.enums;
 
+import java.io.Serializable;
+
 /**
  * Created by tdilber at 7/13/2020
  */
-public enum JoinType {
+public enum JoinType implements Serializable {
     INNER('.', javax.persistence.criteria.JoinType.INNER),
     LEFT('<', javax.persistence.criteria.JoinType.LEFT),
     RIGHT('>', javax.persistence.criteria.JoinType.RIGHT);
