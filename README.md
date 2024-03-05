@@ -86,7 +86,7 @@ public interface JpaDynamicQueryRepository<T, ID> extends JpaRepository<T, ID>, 
 
 You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic-query-presentation-demo
 
-### Setting up the project with Maven
+### 1- Setting up the project with Maven
 
 ```maven
 <dependency>
@@ -96,7 +96,7 @@ You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic
 </dependency>
 ```
 
-### Enable Annotation
+### 2- Enable Annotation
 
 Add the `@EnableJpaDynamicQuery` annotation to the main class of your project. This annotation is used to enable the
 dynamic query feature.
@@ -113,7 +113,7 @@ public class SpringJpaDynamicQueryDemoApplication {
 
 ```
 
-### Create a Repository
+### 3- Create a Repository
 
 **Create a Repository for Existing Entity.**
 
@@ -123,94 +123,195 @@ public class SpringJpaDynamicQueryDemoApplication {
 }
 ```
 
-### Operator Examples
+### 4- Operator Examples
 
-#### EQUAL Operator
+##### What is Criteria?
+At the beginning we must understand what is Criteria. Criteria is SQL Query WHERE Clause item. 
+
+For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 'DILBER' AND age IN (29, 30, 31) `  
+- `id > 5` is a Criteria => `Criteria.of("id", CriteriaOperator.GREATER_THAN, 5)`
+- `name like 'Ali%'` is a Criteria => `Criteria.of("name", CriteriaOperator.START_WITH, "Ali")`
+- `surname = 'DILBER'` is a Criteria => `Criteria.of("name", CriteriaOperator.EQUAL, "DILBER")`
+- `age IN (29, 30, 31)` is a Criteria => `Criteria.of("age", CriteriaOperator.EQUAL, 29, 30, 31)`
+
+this is it :)
+
+
+#####  Multi Value Supported Criteria Operators
+
+Some operators have **multi value support**. This means that you can use multiple values for the same field.
+* Multi Value **support** is available for the following operators: _EQUAL, NOT_EQUAL, CONTAIN, DOES_NOT_CONTAIN, START_WITH_
+* Multi Value **not supported** for the following operators: _SPECIFIED, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, END_WITH_
+
+**Note:** As you know Sql Where Clause Some operators have multi value input, for example **IN, NOT IN**. We develop more multi value operators with java code touches.
+
+#### Comparable Operators
+
+This operator is used to compare numbers and dates. Available Java Types are **Date, Double, Long, LocalDate, ZonedDateTime, Instant, Integer**.
+
+The following operators are available:
+
+`EQUAL, NOT_EQUAL, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL`
+
+Enums supported for `EQUAL, NOT_EQUAL` operators.
+
 
 ```java
 userRepository.findAll(CriteriaList.of(Criteria.of("status", CriteriaOperator.EQUAL, User.Status.ACTIVE)));
+customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 23, 24, 25)));
+```
+_Hibernate Query:_
+```sql
+-- CriteriaOperator.EQUAL => User.Status.ACTIVE
+select user0_.id        as id1_1_,
+       user0_.age       as age2_1_,
+       user0_.birthdate as birthdat3_1_,
+       user0_.name      as name4_1_,
+       user0_.status    as status5_1_,
+       user0_.surname   as surname6_1_,
+       user0_.type      as type7_1_
+from test_user user0_
+where user0_.status = ?
+
+-- Multi Value CriteriaOperator.NOT_EQUAL => 23, 24, 25
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.age <> 23
+  and customer0_.age <> 24
+  and customer0_.age <> 25
 ```
 
-#### NOT_EQUAL Operator
+#### String Operators
 
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 24)));
-```
+This operator is used to compare strings. The following operators are available:
 
-#### GREATER_THAN Operator
+`EQUAL, NOT_EQUAL, CONTAIN, DOES_NOT_CONTAIN, END_WITH, START_WITH`
 
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.GREATER_THAN, 24)));
-```
-
-#### GREATER_THAN_OR_EQUAL Operator
-
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.GREATER_THAN_OR_EQUAL, 24)));
-```
-
-#### LESS_THAN Operator
-
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.LESS_THAN, 24)));
-```
-
-#### LESS_THAN_OR_EQUAL Operator
-
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.LESS_THAN_OR_EQUAL, 24)));
-```
-
-#### CONTAIN Operator
 
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.CONTAIN, "Customer")));
 ```
-
-#### DOES_NOT_CONTAIN Operator
-
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.DOES_NOT_CONTAIN, "5")));
+_Hibernate Query:_
+```sql
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.name like ?
 ```
 
-#### START_WITH Operator
+_Multi Value Support Examples:_
 
 ```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer")));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.DOES_NOT_CONTAIN, "5", "4")));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer 3", "Customer 4")));
+```
+_Hibernate Query:_
+```sql
+-- Multi Value CriteriaOperator.DOES_NOT_CONTAIN
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where (customer0_.name not like ?)
+  and (customer0_.name not like ?)
+
+-- Multi Value CriteriaOperator.START_WITH
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.name like ?
+   or customer0_.name like ?
 ```
 
-#### END_WITH Operator
+#### Null Check Operator
 
-```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.END_WITH, " 7")));
-```
-
-#### SPECIFIED Operator
+This operator is used to check if the field is null or not. The following operators are available: `SPECIFIED`
 
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, true)));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, false)));
+```
+_Hibernate Query:_
+```sql
+-- CriteriaOperator.SPECIFIED true
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.name is not null
+
+-- CriteriaOperator.SPECIFIED false
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.name is null
 ```
 
-### AND-OR Operator Examples
 
-Sequentially, all criteria are evaluated with the AND operator. If you want to evaluate the criteria with the OR
+### 5- AND-OR Operator Examples
+
+Sequentially, all criteria are evaluated with the AND operator. If you want to evaluate the criteria with the `OR`
 operator, you can use the `Criteria.OR()` method.
 
 ```java
 customerRepository.findAll(CriteriaList.of(
         Criteria.of("name", CriteriaOperator.EQUAL, "Customer 1"), 
-    Criteria.
+        Criteria.OR(),
+        Criteria.of("name", CriteriaOperator.EQUAL, "Customer 2")));
 
-OR(),
-    Criteria.
+customerRepository.findAll(CriteriaList.of(
+        Criteria.of("age", CriteriaOperator.EQUAL, 23, 24),
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 20, 21),
+                        Criteria.OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 24),
+                        Criteria.of("age", CriteriaOperator.EQUAL, 25, 26)));
+```
+_Hibernate Query:_
+```sql
+-- Criteria.OR() First Example
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where customer0_.name = ?
+   or customer0_.name = ?
 
-of("name",CriteriaOperator.EQUAL, "Customer 2")
-));
+-- Criteria.OR() Second Example
+select customer0_.id        as id1_0_,
+       customer0_.age       as age2_0_,
+       customer0_.birthdate as birthdat3_0_,
+       customer0_.name      as name4_0_,
+       customer0_.user_id   as user_id5_0_
+from customer customer0_
+where (customer0_.age = 23 or customer0_.age = 24) and customer0_.age <> 20 and customer0_.age <> 21
+   or customer0_.age <> 24 and (customer0_.age = 25 or customer0_.age = 26)
 ```
 
-### SCOPE Operator Examples
+### 6- SCOPE Operator Examples
+
+Just And-Or operators are not enough for complex queries. For Example: you cannot this simple query with just AND-OR operators: `(A OR B) AND (C OR D)`.  For this reason, the `CriteriaOperator.PARENTHES` operator is used to create a scope.
 
 ```java
+    //     (A OR B) AND (C OR D)
 var criteriaList = CriteriaList.of(
         Criteria.of("", CriteriaOperator.PARENTHES,
                 CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.EQUAL, 1),
@@ -223,74 +324,52 @@ var criteriaList = CriteriaList.of(
 );
 List<Course> courseList = courseRepository.findAll(criteriaList);
 ```
-
-### Pagination Examples
-
-```java
-DynamicQuery dynamicQuery = new DynamicQuery();
-dynamicQuery.
-
-setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
-        dynamicQuery.
-
-setPageSize(2);
-dynamicQuery.
-
-setPageNumber(1);
-
-Page<Course> result = courseRepository.findAllAsPage(dynamicQuery);
+_Hibernate Query:_
+```sql
+select course0_.id                as id1_3_,
+       course0_.active            as active2_3_,
+       course0_.description       as descript3_3_,
+       course0_.max_student_count as max_stud4_3_,
+       course0_.name              as name5_3_,
+       course0_.start_date        as start_da6_3_
+from course course0_
+where (course0_.id = 1 or course0_.id = 2)
+  and (course0_.id = 2 or course0_.id = 3)
 ```
 
-### Projection Examples
+### 7- JOIN Examples 
+
+
+
+### 8- Projection Examples
 
 ```java
 DynamicQuery dynamicQuery = new DynamicQuery();
-dynamicQuery.
-
-getSelect().
-
-add(Pair.of("id", "adminId"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("username", "adminUsername"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("roles.id", "roleId"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("roles.name", "roleName"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("roles.roleAuthorizations.authorization.id", "authorizationId"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("roles.roleAuthorizations.authorization.name", "authorizationName"));
-        dynamicQuery.
-
-getSelect().
-
-add(Pair.of("roles.roleAuthorizations.authorization.menuIcon", "menuIcon"));
+dynamicQuery.getSelect().add(Pair.of("id", "adminId"));
+dynamicQuery.getSelect().add(Pair.of("username", "adminUsername"));
+dynamicQuery.getSelect().add(Pair.of("roles.id", "roleId"));
+dynamicQuery.getSelect().add(Pair.of("roles.name", "roleName"));
+dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.id", "authorizationId"));
+dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.name", "authorizationName"));
+dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.menuIcon", "menuIcon"));
+dynamicQuery.getWhere().addAll(criteriaList);
 var criteriaList = CriteriaList.of(Criteria.of("roles.roleAuthorizations.authorization.menuIcon", CriteriaOperator.START_WITH, "icon"));
-dynamicQuery.
-
-getWhere().
-
-addAll(criteriaList);
 
 List<AuthorizationSummary> result2 = adminUserRepository.findAll(dynamicQuery, AuthorizationSummary.class);
 ```
 
-### Query Builder Examples
+### 9- Pagination Examples
+
+```java
+DynamicQuery dynamicQuery = new DynamicQuery();
+dynamicQuery.setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
+dynamicQuery.setPageSize(2);
+dynamicQuery.setPageNumber(1);
+
+Page<Course> result = courseRepository.findAllAsPage(dynamicQuery);
+```
+
+### 10- Query Builder Examples
 
 ```java
 Page<AuthorizationSummary> result = adminUserRepository.queryBuilder()
@@ -308,8 +387,26 @@ Page<AuthorizationSummary> result = adminUserRepository.queryBuilder()
         .getResultAsPage(AuthorizationSummary.class);
 ```
 
+### 11- Argument Resolver Examples
+
+```java
+```
+
+### 12- Custom Converter
+bu kutuphaneyi kullanmaya basladiginizda gercekten basiniza bela olacak seyler olacak bunlardan en onemlisi. 
+### 13-  Custom Entity Manager Provider
+
+### 14- Additional Features
+
+## More Potential(Future) Features
+
+## Performance
+
+## Security
+
 ## Conclusion
 
+Hicbir islem bir onceki islemi iptal etmiyor. Operatorlerle Join, join le Or-Scope, Or ve Scope ile Projectionu, Projection ile OrderBy, OrderBy ile Pageable gibi bir cok farkli islemi bir arada kullanabilirsiniz. Bunlarin hepsini Query Builder, Argment Resolver 
 This introduction not enough pls visit https://github.com/tdilber/spring-jpa-dynamic-query-presentation-demo address for
 more specific examples and details.
 
