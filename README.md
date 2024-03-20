@@ -15,6 +15,12 @@ methods related to dynamic query in the interface can be taken from within the p
 DTO) as Serializable. Since all query creation and database query operations are done with Criteria Api during these
 operations, it is as secure as Spring Data JPA, and works as fast and effectively as Spring Data JPA.
 
+**Note:**
+
+- The project have a Turkish introduction video on Youtube. You can watch it from: https://youtu.be/kY3UGLKXgmo
+- The project have a demo repository for each detail examples. You can find in this github
+  repository: https://github.com/tdilber/spring-jpa-dynamic-query-presentation-demo
+
 ## Introduction
 
 **This is the base Models for Jpa Dynamic Query.**
@@ -126,9 +132,11 @@ public class SpringJpaDynamicQueryDemoApplication {
 ### 4- Operator Examples
 
 ##### What is Criteria?
-At the beginning we must understand what is Criteria. Criteria is SQL Query WHERE Clause item. 
 
-For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 'DILBER' AND age IN (29, 30, 31) `  
+At the beginning we must understand what is Criteria. Criteria is SQL Query WHERE Clause item.
+
+For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 'DILBER' AND age IN (29, 30, 31) `
+
 - `id > 5` is a Criteria => `Criteria.of("id", CriteriaOperator.GREATER_THAN, 5)`
 - `name like 'Ali%'` is a Criteria => `Criteria.of("name", CriteriaOperator.START_WITH, "Ali")`
 - `surname = 'DILBER'` is a Criteria => `Criteria.of("name", CriteriaOperator.EQUAL, "DILBER")`
@@ -136,18 +144,22 @@ For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 
 
 this is it :)
 
-
-#####  Multi Value Supported Criteria Operators
+##### Multi Value Supported Criteria Operators
 
 Some operators have **multi value support**. This means that you can use multiple values for the same field.
-* Multi Value **support** is available for the following operators: _EQUAL, NOT_EQUAL, CONTAIN, DOES_NOT_CONTAIN, START_WITH_
-* Multi Value **not supported** for the following operators: _SPECIFIED, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN, LESS_THAN_OR_EQUAL, END_WITH_
 
-**Note:** As you know Sql Where Clause Some operators have multi value input, for example **IN, NOT IN**. We develop more multi value operators with java code touches.
+* Multi Value **support** is available for the following operators: _EQUAL, NOT_EQUAL, CONTAIN, DOES_NOT_CONTAIN,
+  START_WITH, END_WITH_
+* Multi Value **not supported** for the following operators: _SPECIFIED, GREATER_THAN, GREATER_THAN_OR_EQUAL, LESS_THAN,
+  LESS_THAN_OR_EQUAL_
+
+**Note:** As you know Sql Where Clause Some operators have multi value input, for example **IN, NOT IN**. We develop
+more multi value operators with java code touches.
 
 #### Comparable Operators
 
-This operator is used to compare numbers and dates. Available Java Types are **Date, Double, Long, LocalDate, ZonedDateTime, Instant, Integer**.
+This operator is used to compare numbers and dates. Available Java Types are **Date, Double, Long, LocalDate,
+ZonedDateTime, Instant, Integer**.
 
 The following operators are available:
 
@@ -155,12 +167,15 @@ The following operators are available:
 
 Enums supported for `EQUAL, NOT_EQUAL` operators.
 
-
 ```java
 userRepository.findAll(CriteriaList.of(Criteria.of("status", CriteriaOperator.EQUAL, User.Status.ACTIVE)));
-customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 23, 24, 25)));
+        customerRepository.
+
+findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 23,24,25)));
 ```
+
 _Hibernate Query:_
+
 ```sql
 -- CriteriaOperator.EQUAL => User.Status.ACTIVE
 select user0_.id        as id1_1_,
@@ -191,11 +206,12 @@ This operator is used to compare strings. The following operators are available:
 
 `EQUAL, NOT_EQUAL, CONTAIN, DOES_NOT_CONTAIN, END_WITH, START_WITH`
 
-
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.CONTAIN, "Customer")));
 ```
+
 _Hibernate Query:_
+
 ```sql
 select customer0_.id        as id1_0_,
        customer0_.age       as age2_0_,
@@ -209,10 +225,14 @@ where customer0_.name like ?
 _Multi Value Support Examples:_
 
 ```java
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.DOES_NOT_CONTAIN, "5", "4")));
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer 3", "Customer 4")));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.DOES_NOT_CONTAIN, "5","4")));
+        customerRepository.
+
+findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer 3","Customer 4")));
 ```
+
 _Hibernate Query:_
+
 ```sql
 -- Multi Value CriteriaOperator.DOES_NOT_CONTAIN
 select customer0_.id        as id1_0_,
@@ -241,9 +261,13 @@ This operator is used to check if the field is null or not. The following operat
 
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, true)));
-customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, false)));
+        customerRepository.
+
+findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, false)));
 ```
+
 _Hibernate Query:_
+
 ```sql
 -- CriteriaOperator.SPECIFIED true
 select customer0_.id        as id1_0_,
@@ -264,7 +288,6 @@ from customer customer0_
 where customer0_.name is null
 ```
 
-
 ### 5- AND-OR Operator Examples
 
 Sequentially, all criteria are evaluated with the AND operator. If you want to evaluate the criteria with the `OR`
@@ -273,17 +296,33 @@ operator, you can use the `Criteria.OR()` method.
 ```java
 customerRepository.findAll(CriteriaList.of(
         Criteria.of("name", CriteriaOperator.EQUAL, "Customer 1"), 
-        Criteria.OR(),
-        Criteria.of("name", CriteriaOperator.EQUAL, "Customer 2")));
+        Criteria.
 
-customerRepository.findAll(CriteriaList.of(
-        Criteria.of("age", CriteriaOperator.EQUAL, 23, 24),
-                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 20, 21),
-                        Criteria.OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
-                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 24),
-                        Criteria.of("age", CriteriaOperator.EQUAL, 25, 26)));
+OR(),
+        Criteria.
+
+of("name",CriteriaOperator.EQUAL, "Customer 2")));
+
+        customerRepository.
+
+findAll(CriteriaList.of(
+        Criteria.of("age", CriteriaOperator.EQUAL, 23,24),
+                        Criteria.
+
+of("age",CriteriaOperator.NOT_EQUAL, 20,21),
+                        Criteria.
+
+OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
+                        Criteria.
+
+of("age",CriteriaOperator.NOT_EQUAL, 24),
+                        Criteria.
+
+of("age",CriteriaOperator.EQUAL, 25,26)));
 ```
+
 _Hibernate Query:_
+
 ```sql
 -- Criteria.OR() First Example
 select customer0_.id        as id1_0_,
@@ -308,7 +347,9 @@ where (customer0_.age = 23 or customer0_.age = 24) and customer0_.age <> 20 and 
 
 ### 6- SCOPE Operator Examples
 
-Just And-Or operators are not enough for complex queries. For Example: you cannot this simple query with just AND-OR operators: `(A OR B) AND (C OR D)`.  For this reason, the `CriteriaOperator.PARENTHES` operator is used to create a scope.
+Just And-Or operators are not enough for complex queries. For Example: you cannot this simple query with just AND-OR
+operators: `(A OR B) AND (C OR D)`. For this reason, the `CriteriaOperator.PARENTHES` operator is used to create a
+scope. You can use PARENTHES in PARENTHES.
 
 ```java
     //     (A OR B) AND (C OR D)
@@ -324,7 +365,9 @@ var criteriaList = CriteriaList.of(
 );
 List<Course> courseList = courseRepository.findAll(criteriaList);
 ```
+
 _Hibernate Query:_
+
 ```sql
 select course0_.id                as id1_3_,
        course0_.active            as active2_3_,
@@ -337,11 +380,104 @@ where (course0_.id = 1 or course0_.id = 2)
   and (course0_.id = 2 or course0_.id = 3)
 ```
 
-### 7- JOIN Examples 
+### 7- JOIN Examples
+
+**The strongest feature of this project is JOIN**. Joins work dynamically. If you use it, it automatically performs a
+JOIN. It understands which columns to match between two tables through the Join Annotations you specify in the entity (
+ManyToMany, OneToMany, OneToOne, ManyToOne).
+
+**Inner join and Left join are supported**. Although our system supports Right join, it is not supported because
+Hibernate does not support it.
+
+When performing a join, the field names inside the entity object are used. If you put a **dot (.)** after the field
+name, it performs an **inner join**, if you put a less than **sign (<)**, it performs a **left join**. Then you need to
+write the field name of the object you joined.
+
+Also **you can use multiple join in the same query.**
+
+Also **you can use (multiple) join in select clause and order by clause.**
+
+```java
+// Inner Join
+var criteriaList = CriteriaList.of(
+        Criteria.of("department.name", CriteriaOperator.START_WITH, "P"),
+        Criteria.of("name", CriteriaOperator.START_WITH, "Robert")
+);
+List<Student> students = studentRepository.findAll(criteriaList);
 
 
+// Left Join
+var criteriaList = CriteriaList.of(
+        Criteria.of("department<id", CriteriaOperator.SPECIFIED, false),
+        Criteria.of("id", CriteriaOperator.GREATER_THAN, 3)
+);
+List<Student> students = studentRepository.findAll(criteriaList);
+
+// Multi Inner Join
+var criteriaList = CriteriaList.of(Criteria.of("roles.roleAuthorizations.authorization.menuIcon", CriteriaOperator.START_WITH, "icon"));
+List<AdminUser> courseList = adminUserRepository.findAll(criteriaList);
+
+// Multi Left Join
+var criteriaList = CriteriaList.of(Criteria.of("roles<roleAuthorizations<authorization<menuIcon", CriteriaOperator.START_WITH, "icon"));
+List<AdminUser> courseList = adminUserRepository.findAll(criteriaList);
+```
+
+_Hibernate Query:_
+
+```sql
+-- Inner Join
+select student0_.id            as id1_8_,
+       student0_.address_id    as address_3_8_,
+       student0_.department_id as departme4_8_,
+       student0_.name          as name2_8_
+from student student0_
+         inner join department department1_ on student0_.department_id = department1_.id
+where (department1_.name like ?)
+  and (student0_.name like ?)
+
+-- Left Join
+select student0_.id            as id1_8_,
+       student0_.address_id    as address_3_8_,
+       student0_.department_id as departme4_8_,
+       student0_.name          as name2_8_
+from student student0_
+         left outer join department department1_ on student0_.department_id = department1_.id
+where (department1_.id is null)
+  and student0_.id > 3
+
+-- Multi Inner Join
+select adminuser0_.id as id1_1_, adminuser0_.password as password2_1_, adminuser0_.username as username3_1_
+from admin_user adminuser0_
+         inner join admin_user_role roles1_ on adminuser0_.id = roles1_.admin_user_id
+         inner join role role2_ on roles1_.role_id = role2_.id
+         inner join role_authorization roleauthor3_ on role2_.id = roleauthor3_.role_id
+         inner join my_authorization authorizat4_ on roleauthor3_.authorization_id = authorizat4_.id
+where authorizat4_.menu_icon like ?
+
+-- Multi Left Join
+select adminuser0_.id as id1_1_, adminuser0_.password as password2_1_, adminuser0_.username as username3_1_
+from admin_user adminuser0_
+         left outer join admin_user_role roles1_ on adminuser0_.id = roles1_.admin_user_id
+         left outer join role role2_ on roles1_.role_id = role2_.id
+         left outer join role_authorization roleauthor3_ on role2_.id = roleauthor3_.role_id
+         left outer join my_authorization authorizat4_ on roleauthor3_.authorization_id = authorizat4_.id
+where authorizat4_.menu_icon like ?
+```
 
 ### 8- Projection Examples
+
+Spring Data projections always boring. But this project projection is very simple. When you want to use specific fields
+in the result, you can add selected fields on select list on `DynamicQuery` object. You can add multiple fields to the
+select clause. You can also use the `Pair` class to give an alias to the field.
+
+Why we are using Pair class? Because we want to use the same field name in the select clause. But we want to use
+different field names in the result. For example, we want to use `id` in the select clause, but we want to use `adminId`
+in the result.
+
+When you are using this select clause, queries are created with the select clause. For this reason, your query will be
+faster and more efficient.
+
+This method also support **joined column** pass value to result object. Like this following example:
 
 ```java
 DynamicQuery dynamicQuery = new DynamicQuery();
@@ -352,24 +488,58 @@ dynamicQuery.getSelect().add(Pair.of("roles.name", "roleName"));
 dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.id", "authorizationId"));
 dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.name", "authorizationName"));
 dynamicQuery.getSelect().add(Pair.of("roles.roleAuthorizations.authorization.menuIcon", "menuIcon"));
-dynamicQuery.getWhere().addAll(criteriaList);
 var criteriaList = CriteriaList.of(Criteria.of("roles.roleAuthorizations.authorization.menuIcon", CriteriaOperator.START_WITH, "icon"));
-
-List<AuthorizationSummary> result2 = adminUserRepository.findAll(dynamicQuery, AuthorizationSummary.class);
+dynamicQuery.getWhere().addAll(criteriaList);
+List<AuthorizationSummary> result = adminUserRepository.findAll(dynamicQuery, AuthorizationSummary.class);
 ```
+
+_Hibernate Query:_
+
+```sql
+select adminuser0_.id         as col_0_0_,
+       adminuser0_.username   as col_1_0_,
+       role2_.id              as col_2_0_,
+       role2_.name            as col_3_0_,
+       authorizat4_.id        as col_4_0_,
+       authorizat4_.name      as col_5_0_,
+       authorizat4_.menu_icon as col_6_0_
+from admin_user adminuser0_
+         inner join admin_user_role roles1_ on adminuser0_.id = roles1_.admin_user_id
+         inner join role role2_ on roles1_.role_id = role2_.id
+         inner join role_authorization roleauthor3_ on role2_.id = roleauthor3_.role_id
+         inner join my_authorization authorizat4_ on roleauthor3_.authorization_id = authorizat4_.id
+where authorizat4_.menu_icon like ?
+```
+
+_Note: you can find the example on demo github repository._
 
 ### 9- Pagination Examples
 
+You can find all pagination methods in the `JpaDynamicQueryRepository` interface. You can use the `findAllAsPage` method
+to get the result as a page.
+
 ```java
 DynamicQuery dynamicQuery = new DynamicQuery();
-dynamicQuery.setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
-dynamicQuery.setPageSize(2);
-dynamicQuery.setPageNumber(1);
+dynamicQuery.
+
+setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
+        dynamicQuery.
+
+setPageSize(2);
+dynamicQuery.
+
+setPageNumber(1);
 
 Page<Course> result = courseRepository.findAllAsPage(dynamicQuery);
 ```
 
+_Note: you can find the example on demo github repository._
+
 ### 10- Query Builder Examples
+
+When you want to use Dynamic Query on programmatic way, you can use Query Builder. Query Builder is a fluent API. You
+can use it to create a dynamic query. I inspired from `QueryDSL` project but it is just easy to use DTO create builder
+for `DynamicQuery` object.
 
 ```java
 Page<AuthorizationSummary> result = adminUserRepository.queryBuilder()
@@ -387,28 +557,137 @@ Page<AuthorizationSummary> result = adminUserRepository.queryBuilder()
         .getResultAsPage(AuthorizationSummary.class);
 ```
 
+_Note: you can find the example on demo github repository._
+
 ### 11- Argument Resolver Examples
 
+Argument resolvers are used to automatically create dynamic queries from the request parameters. You can use the
+`@EnableJpaDynamicQueryArgumentResolvers` annotation to enable this feature.
+
+Your controller methods can take `CriteriaList` and `DynamicQuery` objects as parameters.
+
 ```java
+
+@GetMapping("/course")
+public ResponseEntity<List<Course>> getCourseWithCriteria(CriteriaList criteriaList) {
+    List<Course> customerList = courseRepository.findAll(criteriaList);
+    return ResponseEntity.ok().body(customerList);
+}
+
+@GetMapping("/course/as-list")
+public ResponseEntity<List<AuthorizationSummary>> getCourseWithDynamicQueryAsList(DynamicQuery dynamicQuery) {
+    List<AuthorizationSummary> customerList = adminUserRepository.findAll(dynamicQuery, AuthorizationSummary.class);
+    return ResponseEntity.ok().body(customerList);
+}
+```
+
+_Test the API with the following request:_
+
+```java
+printRequestedResult(COURSE_CRITERIA_API_URL, "key0=name&operation0=CONTAIN&values0=Calculus",Course[].class);
+
+printRequestedResult(COURSE_SEARCH_LIST_API_URL,
+            "select0=id&select1=username&select2=roles.id&select3=roles.name&select4=roles.roleAuthorizations.authorization.id&select5=roles.roleAuthorizations.authorization.name&select6=roles.roleAuthorizations.authorization.menuIcon&"+
+                    "selectAs0=adminId&selectAs1=adminUsername&selectAs2=roleId&selectAs3=roleName&selectAs4=authorizationId&selectAs5=authorizationName&selectAs6=menuIcon&"+
+                    "orderBy0=roles.id&orderByDirection0=desc&"+
+                    "page=1&"+
+                    "pageSize=2&"+
+                    "key0=roles.roleAuthorizations.authorization.menuIcon&operation0=START_WITH&values0=icon",S9_Query_Builder.AuthorizationSummary[].class);
+```
+
+_Note: you can find the example on demo github repository._
+
+```sql
+-- COURSE_CRITERIA_API_URL Example
+select course0_.id                as id1_3_,
+       course0_.active            as active2_3_,
+       course0_.description       as descript3_3_,
+       course0_.max_student_count as max_stud4_3_,
+       course0_.name              as name5_3_,
+       course0_.start_date        as start_da6_3_
+from course course0_
+where course0_.name like ?
+
+-- COURSE_SEARCH_LIST_API_URL Example
+select adminuser0_.id         as col_0_0_,
+       adminuser0_.username   as col_1_0_,
+       role2_.id              as col_2_0_,
+       role2_.name            as col_3_0_,
+       authorizat4_.id        as col_4_0_,
+       authorizat4_.name      as col_5_0_,
+       authorizat4_.menu_icon as col_6_0_
+from admin_user adminuser0_
+         inner join admin_user_role roles1_ on adminuser0_.id = roles1_.admin_user_id
+         inner join role role2_ on roles1_.role_id = role2_.id
+         inner join role_authorization roleauthor3_ on role2_.id = roleauthor3_.role_id
+         inner join my_authorization authorizat4_ on roleauthor3_.authorization_id = authorizat4_.id
+where authorizat4_.menu_icon like ?
+order by role2_.id desc limit ?
+offset ?
 ```
 
 ### 12- Custom Converter
-bu kutuphaneyi kullanmaya basladiginizda gercekten basiniza bela olacak seyler olacak bunlardan en onemlisi. 
-### 13-  Custom Entity Manager Provider
+
+When you start using this library, there will be things that will really trouble you. But don't worry, we have a
+solution for you.
+
+Firstly, `BasicDeserializer` is our default deserializer.
+
+When you want to change Date object deserialization, You can create a custom deserializer and override the `deserialize`
+method. **Filter the class what you want to change the deserialization process**. After that, **pass the other object
+types to the default deserializer.**
+
+```java
+
+@Component
+public class DateTimeDeserializer extends BasicDeserializer {
+
+    @Override
+    public <T> T deserialize(Object value, Class<T> clazz) throws Exception {
+        if (clazz.isAssignableFrom(java.util.Date.class)) { // only Date class changing to deserialization
+            if (value instanceof Date date) {
+                return (T) date;
+            }
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            simpleDateFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            return (T) simpleDateFormat.parse(value.toString()); // Date deserialization complete
+        }
+
+        return super.deserialize(value, clazz); // other deserialization is supported from our project default deserializer
+    }
+}
+```
+
+### 13- Custom Entity Manager Provider
 
 ### 14- Additional Features
 
 ## More Potential(Future) Features
 
+- Policy Management: For ensure security, we can add policy management for each query. For example, we can add a policy
+  for each query. If the user does not have permission to access the query, we can throw an exception.
+
 ## Performance
 
 ## Security
+## Is Production Ready?
+**This project is production ready.** But you must be careful when you are using this project. Because if you are using Argument Resolvers on customer api, then bad people can access unauthorized data using with select and join features. This project is fully secured for sql injection but careful to unauthorized queries. You can use programatic queries safely with QueryBuilder or DynamicQuery object.
+
+You can easily use this project on your backoffice or admin panel. But you must be careful when you are using this project on customer api. **Don't miss the use Spring Security or JWT token or another security mechanism for secure your api.**
+
+**Not:** Don't worry when you are using Argument Resolver feature if your entities don't have `@ManyToMany`, `@OneToMany`, `@OneToOne`, `@ManyToOne` annotations. Because this project is not support join without these annotations. Just check unauthorized queries with `OR` and/or `PARENTHES` operators. 
+
+## License
+Apache License 2.0
 
 ## Conclusion
 
-Hicbir islem bir onceki islemi iptal etmiyor. Operatorlerle Join, join le Or-Scope, Or ve Scope ile Projectionu, Projection ile OrderBy, OrderBy ile Pageable gibi bir cok farkli islemi bir arada kullanabilirsiniz. Bunlarin hepsini Query Builder, Argment Resolver 
-This introduction not enough pls visit https://github.com/tdilber/spring-jpa-dynamic-query-presentation-demo address for
-more specific examples and details.
+In conclusion, this project is designed to overcome the
+sluggishness of Spring Data JPA's query creation and the need to write separate code for each query. It simplifies the
+Criteria API, enabling programmatic or dynamic runtime query creation. No operation cancels the previous operation. You can use many different operations together such as Operators with Join,
+Join with Or-Scope, Or and Scope with Projection, Projection with OrderBy, OrderBy with Pageable. You can use all of
+these with Query Builder or dto with Argument Resolver or creating new DynamicQuery object. You can create a custom deserializer for avoiding bad times.
+Finally, I want to say this: They say Java is a cumbersome language, but if you design and use Java in a cumbersome way, it becomes cumbersome. In this project, I tried to eliminate the clumsiness of Spring Data JPA, which is cumbersome. I hope I have been successful. Good work.
 
 
 
