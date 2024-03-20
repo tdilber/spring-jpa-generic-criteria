@@ -294,7 +294,7 @@ customerRepository.findAll(CriteriaList.of(
         Criteria.OR(),
         Criteria.of("name", CriteriaOperator.EQUAL, "Customer 2")));
 
-        customerRepository.findAll(CriteriaList.of(
+customerRepository.findAll(CriteriaList.of(
         Criteria.of("age", CriteriaOperator.EQUAL, 23, 24),
                         Criteria.of("age", CriteriaOperator.NOT_EQUAL, 20, 21),
                         Criteria.OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
