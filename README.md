@@ -135,12 +135,13 @@ public class SpringJpaDynamicQueryDemoApplication {
 
 At the beginning we must understand what is Criteria. Criteria is SQL Query WHERE Clause item.
 
-For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 'DILBER' AND age IN (29, 30, 31) `
+For example `SELECT * FROM user WHERE id > 5 AND name like 'Ali%' AND surname = 'DILBER' AND age IN (29, 30, 31) AND status is not null`
 
 - `id > 5` is a Criteria => `Criteria.of("id", CriteriaOperator.GREATER_THAN, 5)`
 - `name like 'Ali%'` is a Criteria => `Criteria.of("name", CriteriaOperator.START_WITH, "Ali")`
 - `surname = 'DILBER'` is a Criteria => `Criteria.of("name", CriteriaOperator.EQUAL, "DILBER")`
 - `age IN (29, 30, 31)` is a Criteria => `Criteria.of("age", CriteriaOperator.EQUAL, 29, 30, 31)`
+- `status is not null` is a Criteria => `Criteria.of("age", CriteriaOperator.SPECIFIED, true)`
 
 this is it :)
 
@@ -169,9 +170,7 @@ Enums supported for `EQUAL, NOT_EQUAL` operators.
 
 ```java
 userRepository.findAll(CriteriaList.of(Criteria.of("status", CriteriaOperator.EQUAL, User.Status.ACTIVE)));
-        customerRepository.
-
-findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 23,24,25)));
+customerRepository.findAll(CriteriaList.of(Criteria.of("age", CriteriaOperator.NOT_EQUAL, 23,24,25)));
 ```
 
 _Hibernate Query:_
@@ -226,9 +225,7 @@ _Multi Value Support Examples:_
 
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.DOES_NOT_CONTAIN, "5","4")));
-        customerRepository.
-
-findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer 3","Customer 4")));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.START_WITH, "Customer 3","Customer 4")));
 ```
 
 _Hibernate Query:_
@@ -261,9 +258,7 @@ This operator is used to check if the field is null or not. The following operat
 
 ```java
 customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, true)));
-        customerRepository.
-
-findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, false)));
+customerRepository.findAll(CriteriaList.of(Criteria.of("name", CriteriaOperator.SPECIFIED, false)));
 ```
 
 _Hibernate Query:_
@@ -296,29 +291,15 @@ operator, you can use the `Criteria.OR()` method.
 ```java
 customerRepository.findAll(CriteriaList.of(
         Criteria.of("name", CriteriaOperator.EQUAL, "Customer 1"), 
-        Criteria.
+        Criteria.OR(),
+        Criteria.of("name", CriteriaOperator.EQUAL, "Customer 2")));
 
-OR(),
-        Criteria.
-
-of("name",CriteriaOperator.EQUAL, "Customer 2")));
-
-        customerRepository.
-
-findAll(CriteriaList.of(
-        Criteria.of("age", CriteriaOperator.EQUAL, 23,24),
-                        Criteria.
-
-of("age",CriteriaOperator.NOT_EQUAL, 20,21),
-                        Criteria.
-
-OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
-                        Criteria.
-
-of("age",CriteriaOperator.NOT_EQUAL, 24),
-                        Criteria.
-
-of("age",CriteriaOperator.EQUAL, 25,26)));
+        customerRepository.findAll(CriteriaList.of(
+        Criteria.of("age", CriteriaOperator.EQUAL, 23, 24),
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 20, 21),
+                        Criteria.OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 24),
+                        Criteria.of("age", CriteriaOperator.EQUAL, 25, 26)));
 ```
 
 _Hibernate Query:_
@@ -520,15 +501,9 @@ to get the result as a page.
 
 ```java
 DynamicQuery dynamicQuery = new DynamicQuery();
-dynamicQuery.
-
-setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
-        dynamicQuery.
-
-setPageSize(2);
-dynamicQuery.
-
-setPageNumber(1);
+dynamicQuery.setWhere(CriteriaList.of(Criteria.of(Course.Fields.id, CriteriaOperator.GREATER_THAN, 3)));
+dynamicQuery.setPageSize(2);
+dynamicQuery.setPageNumber(1);
 
 Page<Course> result = courseRepository.findAllAsPage(dynamicQuery);
 ```
