@@ -1,5 +1,8 @@
 package com.beyt.jdq.query;
 
+import com.beyt.jdq.annotation.model.JdqModel;
+import com.beyt.jdq.annotation.model.JdqField;
+import com.beyt.jdq.annotation.model.JdqIgnoreField;
 import com.beyt.jdq.dto.Criteria;
 import com.beyt.jdq.dto.DynamicQuery;
 import com.beyt.jdq.dto.enums.CriteriaOperator;
@@ -28,6 +31,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -144,6 +148,7 @@ public class DynamicQueryManager {
         if (resultTypeClass.equals(entityClass) && CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
             return getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, resultTypeClass, isPage);
         } else {
+            extractIfJdqModel(dynamicQuery, resultTypeClass);
             Iterable<Tuple> entityListBySelectableFilter = getEntityListWithReturnClass(repositoryExecutor, dynamicQuery, Tuple.class, isPage);
 
             if (!CollectionUtils.isEmpty(dynamicQuery.getSelect())) {
@@ -158,6 +163,24 @@ public class DynamicQueryManager {
                     return new ArrayList<>();
                 }
             }
+        }
+    }
+
+    private static <ResultType> void extractIfJdqModel(DynamicQuery dynamicQuery, Class<ResultType> resultTypeClass) {
+        if (resultTypeClass.isAnnotationPresent(JdqModel.class)) {
+            List<Pair<String, String>> select = new ArrayList<>();
+            for (Field declaredField : resultTypeClass.getDeclaredFields()) {
+                if (declaredField.isAnnotationPresent(JdqIgnoreField.class)) {
+                    continue;
+                }
+
+                if (declaredField.isAnnotationPresent(JdqField.class)) {
+                    select.add(Pair.of(declaredField.getAnnotation(JdqField.class).value(), declaredField.getName()));
+                } else {
+                    select.add(Pair.of(declaredField.getName(), declaredField.getName()));
+                }
+            }
+            dynamicQuery.setSelect(select);
         }
     }
 
@@ -299,7 +322,7 @@ public class DynamicQueryManager {
 
         List<ResultType> resultTypeList = stream.map(t -> {
             try {
-                ResultType resultObj = resultTypeClass.newInstance();
+                ResultType resultObj = resultTypeClass.getConstructor().newInstance();
 
                 for (Map.Entry<Integer, Method> entry : setterMethods.entrySet()) {
                     entry.getValue().invoke(resultObj, t.get(entry.getKey()));

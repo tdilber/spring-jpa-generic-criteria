@@ -447,8 +447,11 @@ where authorizat4_.menu_icon like ?
 
 ### 8- Projection Examples
 
-Spring Data projections always boring. But this project projection is very simple. When you want to use specific fields
-in the result, you can add selected fields on select list on `DynamicQuery` object. You can add multiple fields to the
+Spring Data projections always boring. But this project projections are very simple. 
+There are two ways to use projections. I suggested using the second way. Because the second way is easier and more reusable.
+
+#### A- Manual Projection
+When you want to use specific fields in the result, you can add selected fields on select list on `DynamicQuery` object. You can add multiple fields to the
 select clause. You can also use the `Pair` class to give an alias to the field.
 
 Why we are using Pair class? Because we want to use the same field name in the select clause. But we want to use
@@ -493,6 +496,56 @@ where authorizat4_.menu_icon like ?
 ```
 
 _Note: you can find the example on demo github repository._
+
+
+#### B- Auto Projection with Annotated Model 
+Model Annotations: `@JdqModel`, `@JdqField`, `@JdqIgnoreField`
+
+We are discovering select clause if model has `@JdqModel` annotation AND select clause is empty.
+Autofill Rules are Simple: 
+- If field has `@JdqField` annotation, we are using this field name in the select clause.
+- If field has not any annotation, we are using field name in the select clause.
+- If field has `@JdqIgnoreField` annotation, we are ignoring this field in the select clause.
+
+**Usage of `@JdqField` annotation:**
+
+`@JdqField` annotation has a parameter. This parameter is a string. This string is a field name in the select clause. If you want to use different field name in the select clause, you can use this annotation. And also If you need to use joined column in the select clause, you can use this annotation.
+
+_Examples:_ 
+
+```java
+@JdqModel // This annotation is required for using projection with joined column
+@Data
+public static class UserJdqModel {
+  @JdqField("name") // This annotation is not required. But if you want to use different field name in the result, you can use this annotation.
+  private String nameButDifferentFieldName;
+  @JdqField("user.name") // This annotation is required for using joined column in the projection
+  private String userNameWithJoin;
+
+  private Integer age; // This field is in the select clause. Because this field has not any annotation.
+  
+  @JdqIgnoreField // This annotation is required for ignoring this field in the select clause.
+  private String surname;
+}
+
+// USAGE EXAMPLE
+List<UserJdqModel> result = customerRepository.findAll(dynamicQuery, UserJdqModel.class);
+```
+_Autofilled select Result If you fill Manuel:_
+```java
+select.add(Pair.of("name", "nameButDifferentFieldName")); 
+select.add(Pair.of("user.name", "userNameWithJoin")); 
+select.add(Pair.of("age", "age")); 
+```
+
+_Hibernate Query:_
+
+```sql
+select customer0_.name as col_0_0_, user1_.name as col_1_0_, customer0_.age as col_2_0_
+from customer customer0_
+       inner join test_user user1_ on customer0_.user_id = user1_.id
+where customer0_.age > 25
+```
 
 ### 9- Pagination Examples
 

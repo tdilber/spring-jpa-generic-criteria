@@ -2,6 +2,9 @@ package com.beyt.jdq.query;
 
 import com.beyt.jdq.BaseTestInstance;
 import com.beyt.jdq.TestApplication;
+import com.beyt.jdq.annotation.model.JdqField;
+import com.beyt.jdq.annotation.model.JdqIgnoreField;
+import com.beyt.jdq.annotation.model.JdqModel;
 import com.beyt.jdq.dto.Criteria;
 import com.beyt.jdq.dto.CriteriaList;
 import com.beyt.jdq.dto.DynamicQuery;
@@ -10,8 +13,7 @@ import com.beyt.jdq.dto.enums.Order;
 import com.beyt.jdq.exception.DynamicQueryNoAvailableOrOperationUsageException;
 import com.beyt.jdq.testenv.entity.Customer;
 import com.beyt.jdq.testenv.entity.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -56,6 +58,17 @@ class DynamicQueryManagerTest extends BaseTestInstance {
         customerRepository.save(customer8);
     }
 
+    @Test
+    void test() {
+
+        assertEquals(toList(customer4, customer5, customer6, customer7),
+                customerRepository.findAll(CriteriaList.of(
+                        Criteria.of("age", CriteriaOperator.EQUAL, 23, 24),
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 20, 21),
+                        Criteria.OR(), // ( [ (23 or 24) AND (not 20 and not 21) ] "OR" [ (not 24) AND (25 or 26) ])
+                        Criteria.of("age", CriteriaOperator.NOT_EQUAL, 24),
+                        Criteria.of("age", CriteriaOperator.EQUAL, 25, 26))));
+    }
 
     @Test
     void findAll() {
@@ -228,6 +241,31 @@ class DynamicQueryManagerTest extends BaseTestInstance {
         List<User> allWithSearchQuery2 = customerRepository.findAll(dynamicQuery1, User.class);
         List<User> allWithSearchQuery3 = customerRepository.findAll(dynamicQuery2, User.class);
         List<Customer> allWithSearchQuery4 = customerRepository.findAll(dynamicQuery2, Customer.class);
+    }
+
+    @Data
+    @JdqModel
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserJdqModel {
+        @JdqField("name")
+        private String nameButDifferentFieldName;
+        @JdqField("user.name")
+        private String userNameWithJoin;
+
+        private Integer age;
+        @JdqIgnoreField
+        private String surname;
+    }
+
+    @Test
+    void JdqModels() {
+        DynamicQuery dynamicQuery = new DynamicQuery();
+        dynamicQuery.getWhere().add(Criteria.of("age", CriteriaOperator.GREATER_THAN, 25));
+
+
+        List<UserJdqModel> result = customerRepository.findAll(dynamicQuery, UserJdqModel.class);
+        assertEquals(toList(new UserJdqModel(customer7.getName(),  customer7.getUser().getName(), customer7.getAge(), null), new UserJdqModel(customer8.getName(),   customer8.getUser().getName(), customer8.getAge(), null)), result);
     }
 
     @Test
