@@ -11,9 +11,8 @@ import com.beyt.jdq.repository.DynamicSpecificationRepositoryImpl;
 import com.beyt.jdq.util.ApplicationContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.IterableUtils;
-import org.hibernate.metamodel.model.domain.internal.SingularAttributeImpl;
-import org.hibernate.query.criteria.internal.path.RootImpl;
-import org.hibernate.query.criteria.internal.path.SingularAttributePath;
+import org.hibernate.query.criteria.JpaRoot;
+import org.hibernate.query.sqm.tree.domain.AbstractSqmPath;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,16 +20,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -156,8 +156,8 @@ public class DynamicQueryManager {
             } else {
 
                 if (!IterableUtils.isEmpty(entityListBySelectableFilter)) {
-                    List<Pair<String, String>> parameters = entityListBySelectableFilter.iterator().next().getElements().stream().filter(e -> SingularAttributePath.class.isAssignableFrom(e.getClass()))
-                            .map(e -> Pair.of(((SingularAttributePath) e).getAttribute().getName(), Objects.isNull(e.getAlias()) ? ((SingularAttributePath) e).getAttribute().getName() : e.getAlias())).collect(Collectors.toList());
+                    List<Pair<String, String>> parameters = entityListBySelectableFilter.iterator().next().getElements().stream().filter(e -> AbstractSqmPath.class.isAssignableFrom(e.getClass()))
+                            .map(e -> Pair.of(((AbstractSqmPath) e).getModel().getPathName(), Objects.isNull(e.getAlias()) ? ((AbstractSqmPath) e).getModel().getPathName() : e.getAlias())).collect(Collectors.toList());
                     return convertResultToResultTypeList(parameters, resultTypeClass, entityListBySelectableFilter, isPage);
                 } else {
                     return new ArrayList<>();
@@ -204,8 +204,8 @@ public class DynamicQueryManager {
             query.multiselect(selectionList);
         } else if (!resultTypeClass.equals(entityClass)) {
             List<Selection<?>> selectionList = new ArrayList<>();
-            Set<SingularAttributeImpl> declaredAttributes = ((RootImpl) root).getModel().getDeclaredAttributes();
-            for (SingularAttributeImpl declaredAttribute : declaredAttributes) {
+            Set<Attribute> declaredAttributes = ((JpaRoot) root).getModel().getDeclaredAttributes();
+            for (Attribute declaredAttribute : declaredAttributes) {
                 selectionList.add(root.get(declaredAttribute.getName()));
             }
             query.multiselect(selectionList);

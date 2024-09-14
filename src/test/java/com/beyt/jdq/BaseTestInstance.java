@@ -6,7 +6,7 @@ import com.beyt.jdq.testenv.repository.CustomerRepository;
 import com.beyt.jdq.testenv.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.Calendar;
 
 public abstract class BaseTestInstance {

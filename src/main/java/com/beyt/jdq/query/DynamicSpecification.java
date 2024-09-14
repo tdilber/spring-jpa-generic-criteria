@@ -11,7 +11,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 
-import javax.persistence.criteria.*;
+import jakarta.persistence.criteria.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

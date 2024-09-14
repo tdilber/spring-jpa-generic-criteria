@@ -4,9 +4,9 @@ import com.beyt.jdq.dto.Criteria;
 import com.beyt.jdq.util.SpecificationUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 
 /**
  * Created by tdilber at 25-Aug-19

@@ -22,7 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;

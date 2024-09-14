@@ -146,3 +146,5 @@ Desktop.ini
 .eslintcache
 
 */target/**
+
+/nexts/

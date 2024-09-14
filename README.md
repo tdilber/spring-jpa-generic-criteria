@@ -94,6 +94,16 @@ You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic
 
 ### 1- Setting up the project with Maven
 
+**for Spring Boot 3.*:**
+```maven
+<dependency>
+    <groupId>io.github.tdilber</groupId>
+    <artifactId>spring-boot-starter-jpa-dynamic-query</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+**for Spring Boot 2.*:**
 ```maven
 <dependency>
     <groupId>io.github.tdilber</groupId>

@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
-        <version>2.7.18</version>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.3</version>
         <relativePath/>
     </parent>
 
     <groupId>io.github.tdilber</groupId>
-    <artifactId>spring-jpa-dynamic-query</artifactId>
-    <version>0.4.0</version>
+    <artifactId>spring-boot-starter-jpa-dynamic-query</artifactId>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
     <name>Spring Jpa Dynamic Query</name>
     <description>Spring Jpa Dynamic Query (JDQ) Project</description>
@@ -77,6 +77,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -117,7 +118,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.10.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -138,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${maven-source-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -151,7 +151,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>${maven-javadoc-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

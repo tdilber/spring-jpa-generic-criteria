@@ -1,6 +1,6 @@
 package com.beyt.jdq.provider;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 public interface IEntityManagerProvider {
     EntityManager provide();
