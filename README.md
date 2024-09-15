@@ -99,7 +99,7 @@ You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic
 <dependency>
     <groupId>io.github.tdilber</groupId>
     <artifactId>spring-boot-starter-jpa-dynamic-query</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -108,7 +108,7 @@ You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic
 <dependency>
     <groupId>io.github.tdilber</groupId>
     <artifactId>spring-jpa-dynamic-query</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 
