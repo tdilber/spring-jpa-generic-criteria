@@ -37,28 +37,6 @@ public class ArgumentResolversTests extends BaseTestInstance {
     private static final String USER_SEARCH_LIST_API_URL = "/test-api/user/as-list";
     private static final String USER_SEARCH_PAGE_API_URL = "/test-api/user/as-page";
 
-    @BeforeAll
-    private void init() {
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
-        userRepository.save(user4);
-        userRepository.save(user5);
-        userRepository.save(user6);
-        userRepository.save(user7);
-        userRepository.save(user8);
-
-        customerRepository.save(customer1);
-        customerRepository.save(customer2);
-        customerRepository.save(customer3);
-        customerRepository.save(customer4);
-        customerRepository.save(customer5);
-        customerRepository.save(customer6);
-        customerRepository.save(customer7);
-        customerRepository.save(customer8);
-    }
-
-
     @Test
     public void argumentCriteriaListTests() throws Exception {
        /* CONTAIN

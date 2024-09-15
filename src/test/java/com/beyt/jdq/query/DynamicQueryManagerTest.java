@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
+import org.springframework.test.annotation.DirtiesContext;
 
 import javax.persistence.Tuple;
 import java.text.SimpleDateFormat;
@@ -33,30 +34,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = TestApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class DynamicQueryManagerTest extends BaseTestInstance {
 
     private SimpleDateFormat dateFormat;
-
-    @BeforeAll
-    protected void init() {
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
-        userRepository.save(user4);
-        userRepository.save(user5);
-        userRepository.save(user6);
-        userRepository.save(user7);
-        userRepository.save(user8);
-
-        customerRepository.save(customer1);
-        customerRepository.save(customer2);
-        customerRepository.save(customer3);
-        customerRepository.save(customer4);
-        customerRepository.save(customer5);
-        customerRepository.save(customer6);
-        customerRepository.save(customer7);
-        customerRepository.save(customer8);
-    }
 
     @Test
     void test() {
@@ -266,6 +247,25 @@ class DynamicQueryManagerTest extends BaseTestInstance {
 
         List<UserJdqModel> result = customerRepository.findAll(dynamicQuery, UserJdqModel.class);
         assertEquals(toList(new UserJdqModel(customer7.getName(),  customer7.getUser().getName(), customer7.getAge(), null), new UserJdqModel(customer8.getName(),   customer8.getUser().getName(), customer8.getAge(), null)), result);
+    }
+
+    @JdqModel
+    public record UserJdqModelRecord(@JdqField("name") String nameButDifferentFieldName, @JdqField("user.name") String userNameWithJoin, Integer age) {
+    }
+
+    @JdqModel
+    public record UserJdqModelRecordNotValid(@JdqField("name") String nameButDifferentFieldName, @JdqField("user.name") String userNameWithJoin, @JdqIgnoreField Integer age) {
+    }
+
+    @Test
+    void JdqModelRecord() {
+        DynamicQuery dynamicQuery = new DynamicQuery();
+        dynamicQuery.getWhere().add(Criteria.of("age", CriteriaOperator.GREATER_THAN, 25));
+
+
+        List<UserJdqModelRecord> result = customerRepository.findAll(dynamicQuery, UserJdqModelRecord.class);
+        assertEquals(toList(new UserJdqModelRecord(customer7.getName(),  customer7.getUser().getName(), customer7.getAge()), new UserJdqModelRecord(customer8.getName(),   customer8.getUser().getName(), customer8.getAge())), result);
+        assertThrows(Exception.class, () -> customerRepository.findAll(dynamicQuery, UserJdqModelRecordNotValid.class));
     }
 
     @Test

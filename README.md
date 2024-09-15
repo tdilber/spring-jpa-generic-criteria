@@ -159,7 +159,7 @@ more multi value operators with java code touches.
 
 #### Comparable Operators
 
-This operator is used to compare numbers and dates. Available Java Types are **Date, Double, Long, LocalDate,
+This operator is used to compare numbers and dates. Available Java Types are **Timestamp,  Date, Double, Long, LocalDate,
 ZonedDateTime, Instant, Integer**.
 
 The following operators are available:
