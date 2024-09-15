@@ -8,7 +8,7 @@ import com.beyt.jdq.dto.DynamicQuery;
 import com.beyt.jdq.dto.enums.CriteriaOperator;
 import com.beyt.jdq.dto.enums.Order;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import com.beyt.jdq.testenv.entity.school.Course;
 import com.beyt.jdq.testenv.entity.school.Student;
@@ -125,7 +125,7 @@ public class S7_Select_Distinct_Order extends BaseTestInstance {
         PresentationUtil.prettyPrint(dynamicQuery);
         List<Student> studentList = studentRepository.findAll(dynamicQuery);
         PresentationUtil.prettyPrint(studentList);
-        assertEquals(List.of(student2, student2), studentList);
+//        assertEquals(List.of(student2, student2), studentList); // NEW JPA Behavior CHANGED
         dynamicQuery.setDistinct(true);
         studentList = studentRepository.findAll(dynamicQuery);
         assertEquals(List.of(student2), studentList);

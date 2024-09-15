@@ -1,7 +1,7 @@
 package com.beyt.jdq.testenv.entity.school;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;

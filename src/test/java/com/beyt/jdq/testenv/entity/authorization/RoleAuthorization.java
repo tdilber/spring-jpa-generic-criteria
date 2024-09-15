@@ -2,7 +2,7 @@
 package com.beyt.jdq.testenv.entity.authorization;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;

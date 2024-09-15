@@ -1,9 +1,9 @@
 package com.beyt.jdq.testenv.entity.authorization;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.*;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;

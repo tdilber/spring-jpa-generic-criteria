@@ -1,6 +1,6 @@
 package com.beyt.jdq.testenv.entity.authorization;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
