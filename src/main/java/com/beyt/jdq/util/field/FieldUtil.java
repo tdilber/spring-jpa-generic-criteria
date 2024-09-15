@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.Timestamp;
 
 /**
  * Created by tdilber at 11/17/2020
@@ -25,6 +26,7 @@ public final class FieldUtil {
         fieldHelperMap.put(String.class, new StringFieldHelper());
         fieldHelperMap.put(Boolean.class, new BooleanFieldHelper());
         fieldHelperMap.put(Date.class, new DateFieldHelper());
+        fieldHelperMap.put(Timestamp.class, new TimestampFieldHelper());
         fieldHelperMap.put(Double.class, new DoubleFieldHelper());
         fieldHelperMap.put(Long.class, new LongFieldHelper());
         fieldHelperMap.put(LocalDate.class, new LocalDateFieldHelper());
