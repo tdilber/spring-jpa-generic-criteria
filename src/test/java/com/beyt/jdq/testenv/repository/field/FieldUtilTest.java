@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +28,7 @@ class FieldUtilTest {
         assertEquals(Double.parseDouble("155"), FieldUtil.fillValue(Double.class, "155"));
         assertEquals(Integer.parseInt("155"), FieldUtil.fillValue(Integer.class, "155"));
         assertEquals(Boolean.TRUE, FieldUtil.fillValue(Boolean.class, "True"));
-        assertEquals(simpleDateFormat.format(new Date(currentTimeMillis)), simpleDateFormat.format(FieldUtil.fillValue(Date.class, simpleDateFormat.format(new Date(currentTimeMillis)))));
+        assertEquals(simpleDateFormat.format(new Timestamp(currentTimeMillis)), simpleDateFormat.format(FieldUtil.fillValue(Timestamp.class, simpleDateFormat.format(new Timestamp(currentTimeMillis)))));
         assertEquals(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()), FieldUtil.fillValue(ZonedDateTime.class, ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).toString()));
     }
 }

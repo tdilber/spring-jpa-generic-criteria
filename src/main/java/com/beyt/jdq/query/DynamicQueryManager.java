@@ -6,6 +6,7 @@ import com.beyt.jdq.annotation.model.JdqIgnoreField;
 import com.beyt.jdq.dto.Criteria;
 import com.beyt.jdq.dto.DynamicQuery;
 import com.beyt.jdq.dto.enums.CriteriaOperator;
+import com.beyt.jdq.exception.DynamicQueryIllegalArgumentException;
 import com.beyt.jdq.query.rule.specification.*;
 import com.beyt.jdq.repository.DynamicSpecificationRepositoryImpl;
 import com.beyt.jdq.util.ApplicationContextUtil;
@@ -33,6 +34,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -171,6 +173,9 @@ public class DynamicQueryManager {
             List<Pair<String, String>> select = new ArrayList<>();
             for (Field declaredField : resultTypeClass.getDeclaredFields()) {
                 if (declaredField.isAnnotationPresent(JdqIgnoreField.class)) {
+                    if (resultTypeClass.isRecord()) {
+                        throw new DynamicQueryIllegalArgumentException("Record class can not have @JdqIgnoreField annotation");
+                    }
                     continue;
                 }
 
@@ -307,27 +312,38 @@ public class DynamicQueryManager {
 
     protected static <ResultType> Iterable<ResultType> convertResultToResultTypeList(List<Pair<String, String>> querySelects, Class<ResultType> resultTypeClass, Iterable<Tuple> entityListBySelectableFilter, boolean isPage) {
         Map<Integer, Method> setterMethods = new HashMap<>();
-        for (int i = 0; i < querySelects.size(); i++) {
-            String select = querySelects.get(i).getSecond();
+        if (!resultTypeClass.isRecord()) {
+            for (int i = 0; i < querySelects.size(); i++) {
+                String select = querySelects.get(i).getSecond();
 
-            Optional<Method> methodOptional = Arrays.stream(resultTypeClass.getMethods())
-                    .filter(c -> c.getName().equalsIgnoreCase("set" + select)
-                            && c.getParameterCount() == 1).findFirst();
+                Optional<Method> methodOptional = Arrays.stream(resultTypeClass.getMethods())
+                        .filter(c -> c.getName().equalsIgnoreCase("set" + select)
+                                && c.getParameterCount() == 1).findFirst();
 
-            if (methodOptional.isPresent()) {
-                setterMethods.put(i, methodOptional.get());
+                if (methodOptional.isPresent()) {
+                    setterMethods.put(i, methodOptional.get());
+                }
             }
         }
         Stream<Tuple> stream = isPage ? ((Page<Tuple>) entityListBySelectableFilter).stream() : ((List<Tuple>) entityListBySelectableFilter).stream();
 
         List<ResultType> resultTypeList = stream.map(t -> {
             try {
-                ResultType resultObj = resultTypeClass.getConstructor().newInstance();
-
-                for (Map.Entry<Integer, Method> entry : setterMethods.entrySet()) {
-                    entry.getValue().invoke(resultObj, t.get(entry.getKey()));
+                if (resultTypeClass.isRecord()) {
+                    Object[] args = new Object[querySelects.size()];
+                    for (int i = 0; i < querySelects.size(); i++) {
+                        args[i] = t.get(i);
+                    }
+                    return resultTypeClass.getDeclaredConstructor(Arrays.stream(resultTypeClass.getRecordComponents())
+                            .map(RecordComponent::getType)
+                            .toArray(Class[]::new)).newInstance(args);
+                } else {
+                    ResultType resultObj = resultTypeClass.getConstructor().newInstance();
+                    for (Map.Entry<Integer, Method> entry : setterMethods.entrySet()) {
+                        entry.getValue().invoke(resultObj, t.get(entry.getKey()));
+                    }
+                    return resultObj;
                 }
-                return resultObj;
             } catch (Exception e) {
                 return null;
             }
