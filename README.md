@@ -98,7 +98,7 @@ You can find the sample code from: https://github.com/tdilber/spring-jpa-dynamic
 <dependency>
     <groupId>io.github.tdilber</groupId>
     <artifactId>spring-jpa-dynamic-query</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
@@ -450,6 +450,8 @@ where authorizat4_.menu_icon like ?
 Spring Data projections always boring. But this project projections are very simple. 
 There are two ways to use projections. I suggested using the second way. Because the second way is easier and more reusable.
 
+**Note:** Record class is supported for projection. You can use record class for projection.
+
 #### A- Manual Projection
 When you want to use specific fields in the result, you can add selected fields on select list on `DynamicQuery` object. You can add multiple fields to the
 select clause. You can also use the `Pair` class to give an alias to the field.
@@ -497,21 +499,29 @@ where authorizat4_.menu_icon like ?
 
 _Note: you can find the example on demo github repository._
 
-
-#### B- Auto Projection with Annotated Model 
-Model Annotations: `@JdqModel`, `@JdqField`, `@JdqIgnoreField`
+#### B- Auto Projection with Annotated Model
+Model Annotations: `@JdqModel`, `@JdqField`, `@JdqIgnoreField`, `@JdqSubModel`
 
 We are discovering select clause if model has `@JdqModel` annotation AND select clause is empty.
-Autofill Rules are Simple: 
+Autofill Rules are Simple:
 - If field has `@JdqField` annotation, we are using this field name in the select clause.
 - If field has not any annotation, we are using field name in the select clause.
 - If field has `@JdqIgnoreField` annotation, we are ignoring this field in the select clause.
+- If field has `@JdqSubModel` annotation, we are including the sub-model fields in the select clause.
 
 **Usage of `@JdqField` annotation:**
 
 `@JdqField` annotation has a parameter. This parameter is a string. This string is a field name in the select clause. If you want to use different field name in the select clause, you can use this annotation. And also If you need to use joined column in the select clause, you can use this annotation.
 
-_Examples:_ 
+**Usage of `@JdqSubModel` annotation:**
+
+`@JdqSubModel` annotation is used to include fields from a nested model in the select clause. This allows for more complex projections involving nested objects.
+
+There are 2 usage of `@JdqSubModel` annotation: 
+- If you want to use nested model fields without join support, Use `@JdqSubModel()` annotation without any parameter.
+- If you want to use nested model fields with join support, Use `@JdqSubModel("joined_column_name")` annotation with joined column name parameter.
+
+_Examples:_
 
 ```java
 @JdqModel // This annotation is required for using projection with joined column
@@ -519,32 +529,64 @@ _Examples:_
 public static class UserJdqModel {
   @JdqField("name") // This annotation is not required. But if you want to use different field name in the result, you can use this annotation.
   private String nameButDifferentFieldName;
-  @JdqField("user.name") // This annotation is required for using joined column in the projection
-  private String userNameWithJoin;
+  @JdqField("team.name") // This annotation is required for using joined column in the projection
+  private String teamNameWithJoin;
 
   private Integer age; // This field is in the select clause. Because this field has not any annotation.
-  
+
   @JdqIgnoreField // This annotation is required for ignoring this field in the select clause.
   private String surname;
+
+  @JdqSubModel // This annotation is used to include fields from a nested model without join support
+  private AddressJdqModel address;
+  
+  @JdqSubModel("department") // This annotation is used to include fields from a nested model with join support
+  private DepartmentJdqModel departmentJdqModel;
 }
 
+@JdqModel
+@Data
+public static class AddressJdqModel {
+  @JdqField("address.street")
+  private String street;
+  @JdqField("address.city")
+  private String city;
+}
+
+@JdqModel
+public record DepartmentJdqModel(@JdqField("id") Long departmentId, @JdqField String name) {
+    
+}        
+
 // USAGE EXAMPLE
-List<UserJdqModel> result = customerRepository.findAll(dynamicQuery, UserJdqModel.class);
+List<UserJdqModel> result = userRepository.findAll(dynamicQuery, UserJdqModel.class);
 ```
 _Autofilled select Result If you fill Manuel:_
 ```java
 select.add(Pair.of("name", "nameButDifferentFieldName")); 
 select.add(Pair.of("user.name", "userNameWithJoin")); 
 select.add(Pair.of("age", "age")); 
+select.add(Pair.of("address.street", "address.street"));
+select.add(Pair.of("address.city", "address.city"));
+select.add(Pair.of("department.id", "departmentJdqModel.departmentId"));
+select.add(Pair.of("department.name", "departmentJdqModel.name"));
 ```
 
 _Hibernate Query:_
 
 ```sql
-select customer0_.name as col_0_0_, user1_.name as col_1_0_, customer0_.age as col_2_0_
-from customer customer0_
-       inner join test_user user1_ on customer0_.user_id = user1_.id
-where customer0_.age > 25
+select user0_.name as col_0_0_,
+       team3_.name as col_1_0_,
+       user0_.age as col_2_0_,
+       address1_.street as col_3_0_,
+       address1_.city as col_4_0_,
+       department2_.id as col_5_0_,
+       department2_.name as col_6_0_
+from test_user user0_
+       inner join team team3_ on user0_.team_id = team3_.id
+       inner join address address1_ on user0_.address_id = address1_.id
+       inner join department department2_ on user0_.department_id = department2_.id
+where user0_.age > 25
 ```
 
 ### 9- Pagination Examples
