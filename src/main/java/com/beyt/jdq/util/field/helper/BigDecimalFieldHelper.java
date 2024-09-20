@@ -21,6 +21,6 @@ public class BigDecimalFieldHelper implements IFieldHelper<BigDecimal> {
 
     @Override
     public String createGeneratorCode(String value) {
-        return value;
+        return "new BigDecimal(\"" + value + "\");";
     }
 }
